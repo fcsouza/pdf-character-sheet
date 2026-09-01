@@ -29,7 +29,8 @@
     },
     "Fillable": {
       "rejectedPath": "This PDF has a field named \"{path}\", which is outside the actor\u2019s system data. It was ignored.",
-      "title": "PDF sheet"
+      "title": "PDF sheet",
+      "noPdfChosen": "No PDF chosen for this actor yet. Pick one from the sheet settings."
     },
     "Settings": {
       "cacheSize": {

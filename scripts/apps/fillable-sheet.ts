@@ -20,7 +20,10 @@ import * as pdfjs from 'pdfjs-dist';
 import { MODULE_ID } from '../constants.js';
 import { themeClass } from '../settings.js';
 
-const { ApplicationV2 } = foundry.applications.api;
+// ActorSheetV2, not bare ApplicationV2. Foundry's sheet machinery builds
+// `actor.sheet` from the registered class, and a plain ApplicationV2 is not
+// one — it leaves `actor.sheet` null with no error anywhere.
+const { ActorSheetV2 } = foundry.applications.sheets;
 
 /**
  * A link service that does nothing.
@@ -67,40 +70,51 @@ function resolveFieldPath(fieldName: string): string | undefined {
   return key ? `flags.${MODULE_ID}.formData.${key}` : undefined;
 }
 
-interface FillableOptions {
-  document: {
-    name: string;
-    system: object;
-    flags?: object;
-    update(delta: object): Promise<unknown>;
-  };
-  url: string;
-  title?: string;
+/**
+ * The actor this sheet renders. Typed structurally: the Foundry runtime is
+ * `@vttforge/types`' job, and this only needs four things from it.
+ */
+interface SheetActor {
+  name: string;
+  system: object;
+  flags?: object;
+  getFlag(scope: string, key: string): unknown;
+  update(delta: object): Promise<unknown>;
 }
 
-export class FillablePdfSheet extends ApplicationV2 {
+export class FillablePdfSheet extends ActorSheetV2 {
   static DEFAULT_OPTIONS = {
     classes: [MODULE_ID, 'fillable-pdf'],
     window: { resizable: true },
     position: { width: 860, height: 1000 },
   };
 
-  #url: string;
   #doc?: pdfjs.PDFDocumentProxy;
-  #document: FillableOptions['document'];
 
-  constructor(options: FillableOptions) {
-    super(options as never);
-    this.#url = options.url;
-    this.#document = options.document;
+  /** ActorSheetV2 already exposes `this.document`; this just names it. */
+  get actor(): SheetActor {
+    return this.document as SheetActor;
+  }
+
+  /**
+   * The file this actor's sheet is drawn from.
+   *
+   * Which PDF an actor uses is a flag on the actor pointing at a PDF item, so
+   * one file can back many characters and swapping it is one setting rather
+   * than a re-import.
+   */
+  get url(): string | undefined {
+    const itemId = this.actor.getFlag(MODULE_ID, SHEET_FLAG);
+    if (typeof itemId !== 'string') return undefined;
+    return (game.items?.get(itemId) as { system?: { url?: string } } | undefined)?.system?.url;
   }
 
   /** The document's current values, flattened to the paths a PDF field names. */
   #flatten(): Record<string, unknown> {
     return foundry.utils.flattenObject({
-      name: this.#document.name,
-      system: this.#document.system,
-      flags: this.#document.flags ?? {},
+      name: this.actor.name,
+      system: this.actor.system,
+      flags: this.actor.flags ?? {},
     });
   }
 
@@ -115,9 +129,20 @@ export class FillablePdfSheet extends ApplicationV2 {
     const container = document.createElement('div');
     container.className = 'pdf-pages';
 
-    this.#doc ??= await pdfjs.getDocument(this.#url).promise;
+    const url = this.url;
+    if (!url) {
+      // No PDF chosen yet. Say so rather than rendering an empty window.
+      const empty = document.createElement('p');
+      empty.className = 'pdf-empty';
+      empty.textContent = game.i18n.localize('PDF_CHARACTER_SHEET.Fillable.noPdfChosen');
+      container.appendChild(empty);
+      return container;
+    }
+
+    this.#doc ??= await pdfjs.getDocument(url).promise;
     const page = await this.#doc.getPage(1);
-    const viewport = page.getViewport({ scale: 1.5 });
+    const scale = 1.5;
+    const viewport = page.getViewport({ scale });
 
     const canvas = document.createElement('canvas');
     canvas.width = viewport.width;
@@ -163,9 +188,30 @@ export class FillablePdfSheet extends ApplicationV2 {
       } as never);
     }
 
-    container.append(canvas, layer);
+    // The layer is positioned over the canvas, so the two need a shared
+    // positioned parent. Appending both to the scrolling container instead
+    // anchors the layer to that container and the fields land off the page.
+    const pageEl = document.createElement('div');
+    pageEl.className = 'pdf-page';
+    // pdf.js lays the annotation layer out with `calc(var(--scale-factor) * Npx)`.
+    // Without the variable every field collapses onto the origin, which looks
+    // like the layer rendering in the top-left corner instead of over the page.
+    pageEl.style.setProperty('--scale-factor', String(scale));
+    pageEl.style.width = `${viewport.width}px`;
+    pageEl.style.height = `${viewport.height}px`;
+    pageEl.append(canvas, layer);
+    container.appendChild(pageEl);
     this.#seed(layer);
     return container;
+  }
+
+  /**
+   * ApplicationV2 needs both halves. `_renderHTML` builds the content and
+   * `_replaceHTML` puts it in the window — declaring only the first leaves the
+   * class unrenderable, and Foundry says so only when something tries.
+   */
+  _replaceHTML(result: HTMLElement, content: HTMLElement): void {
+    content.replaceChildren(result);
   }
 
   /** Copy the document's values into the freshly rendered fields. */
@@ -211,6 +257,6 @@ export class FillablePdfSheet extends ApplicationV2 {
     // a document update and a re-render.
     if (this.#flatten()[path] === value) return;
 
-    await this.#document.update(foundry.utils.expandObject({ [path]: value }));
+    await this.actor.update(foundry.utils.expandObject({ [path]: value }));
   }
 }
