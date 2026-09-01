@@ -46,3 +46,12 @@ If you wish to build PDF Character Sheet yourself - most commonly because you wa
 ### API Examples
 
 See the [documentation](https://fcsouza.github.io/pdf-character-sheet/index.html) for details and examples.
+
+## pdf.js version
+
+Pinned to `pdfjs-dist` 5.x. 6.x is out; the bump is deliberately not taken.
+
+The annotation layer is the part of that API this module leans on hardest,
+and it is the part most likely to have moved in a major. The current
+rendering is verified working against 5.x, so a bump belongs in its own
+change with that as the baseline — not folded into anything else.
