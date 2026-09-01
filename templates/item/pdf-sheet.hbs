@@ -1,0 +1,34 @@
+<form class="pdf-character-sheet-form">
+  <div class="form-group">
+    <label for="pdf-url">{{localize "PDF_CHARACTER_SHEET.Field.url"}}</label>
+    <file-picker id="pdf-url" name="system.url" type="text" value="{{system.url}}"></file-picker>
+  </div>
+
+  <div class="form-group">
+    <label for="pdf-code">{{localize "PDF_CHARACTER_SHEET.Field.code"}}</label>
+    <input id="pdf-code" type="text" name="system.code" value="{{system.code}}" />
+  </div>
+
+  <div class="form-group">
+    <label for="pdf-offset">{{localize "PDF_CHARACTER_SHEET.Field.offset"}}</label>
+    <input id="pdf-offset" type="number" step="1" name="system.offset" value="{{system.offset}}" />
+  </div>
+
+  <div class="form-group">
+    <label for="pdf-kind">{{localize "PDF_CHARACTER_SHEET.Field.pdfType"}}</label>
+    <select id="pdf-kind" name="system.pdfType">
+      {{#each kinds}}
+        <option value="{{this.value}}" {{#if (eq this.value ../system.pdfType)}}selected{{/if}}>{{this.label}}</option>
+      {{/each}}
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="pdf-cache">{{localize "PDF_CHARACTER_SHEET.Field.cache"}}</label>
+    <input id="pdf-cache" type="checkbox" name="system.cache" {{checked system.cache}} />
+  </div>
+
+  <button type="button" data-action="openPdf">
+    <i class="fa-solid fa-file-pdf"></i> {{localize "PDF_CHARACTER_SHEET.Sheet.pdf.title"}}
+  </button>
+</form>

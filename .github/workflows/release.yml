@@ -1,80 +1,92 @@
-name: Release Module
-# For releases
+name: Release
+
 on:
   push:
-    # Sequence of patterns matched against refs/tags
     tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+      - 'v*'
+
+permissions:
+  contents: write
+
 jobs:
-  build:
-    name: Release
+  release:
     runs-on: ubuntu-latest
     steps:
-      - name: Get Version
-        id: get_version
-        run: |
-          echo ::set-output name=VERSION::${GITHUB_REF#refs/*/}
-          echo ::set-output name=VERSION2::${GITHUB_REF#refs/*/v}
-        shell: bash
+      - uses: actions/checkout@v4
 
-      - name: Version
-        run: |
-          echo Version: $VERSION
-          echo Version2: $VERSION2
-
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
-
-      - name: Update module.json
-        run: |
-          sed -i '/"version":/c\    "version": "${{ steps.get_version.outputs.VERSION2 }}",' module.json
-          sed -i '/"download":/c\    "download": "https://github.com/fcsouza/pdf-character-sheet/releases/download/${{ steps.get_version.outputs.VERSION }}/pdfoundry-${{ steps.get_version.outputs.VERSION }}.zip",' module.json
-          cat module.json
-
-      - name: Install dependencies
-        run: npm ci
-
-#      - name: Build docs
-#        run: gulp docs
-
-      - name: Build module
-        run: gulp build
-
-      - name: Zip project # This would actually build your project, using zip for an example artifact
-        run: 7z a -tzip pdfoundry-${{ steps.get_version.outputs.VERSION }}.zip pdf-character-sheet
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Resolve version from tag
+        id: version
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
+          REF: ${{ github.ref_name }}
+        run: |
+          version="${REF#v}"
+          # Git allows surprising characters in tag names. Reject anything
+          # that isn't a strict semver-ish identifier so downstream node -e
+          # / shell interpolations can't be turned into command injection
+          # by a malicious tag push.
+          if ! [[ "$version" =~ ^[0-9A-Za-z._+-]+$ ]]; then
+            echo "Refusing tag with unsafe characters: $version" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`.
-      # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-      - name: Upload Release Assets
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: pnpm/action-setup@v4
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./pdfoundry-${{ steps.get_version.outputs.VERSION }}.zip
-          asset_name: pdfoundry-${{ steps.get_version.outputs.VERSION }}.zip
-          asset_content_type: application/zip
+          version: 10
 
-      - name: Commit changes
-        uses: EndBug/add-and-commit@v4
+      - uses: actions/setup-node@v4
         with:
-          author_name: Github Workflow
-          message: "Deploy Release ${{ steps.get_version.outputs.VERSION }}"
-          ref: 'master'
-          add: module.json docs
+          node-version: 22
+
+      - run: pnpm install
+
+      - name: Sync manifest version
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          node -e "const fs=require('node:fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.version=process.env.VERSION;fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n');"
+
+      # We invoke vite directly (not `pnpm build` → `vttforge build`) because
+      # the release workflow needs to:
+      #   1. Run vite build → emit dist/module.json
+      #   2. Patch manifest/download URLs into dist/module.json
+      #   3. Zip dist/ → release artifact (so the zipped manifest carries URLs)
+      # `vttforge build` zips at step 1, which would freeze the un-patched
+      # manifest. Eventually the vite-plugin will support env-driven URL
+      # injection and this dance disappears.
+      - run: pnpm exec vite build
+
+      - name: Inject release URLs into manifest
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          REPO: ${{ github.repository }}
+          PKG_ID: 'pdf-character-sheet'
+        run: |
+          node -e "const fs=require('node:fs');const path='dist/module.json';const m=JSON.parse(fs.readFileSync(path,'utf8'));const r=process.env.REPO;const v=process.env.VERSION;const id=process.env.PKG_ID;m.manifest=\`https://github.com/\${r}/releases/latest/download/module.json\`;m.download=\`https://github.com/\${r}/releases/download/v\${v}/\${id}-\${v}.zip\`;fs.writeFileSync(path,JSON.stringify(m,null,2)+'\n');"
+
+      - name: Build release zip
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          PKG_ID: 'pdf-character-sheet'
+        run: |
+          cd dist
+          zip -r "../${PKG_ID}-${VERSION}.zip" .
+
+      - name: Create GitHub Release
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          PKG_ID: 'pdf-character-sheet'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{ env.PKG_ID }}-${{ env.VERSION }}.zip
+            dist/module.json
+          generate_release_notes: true
+          body: |
+            ## Foundry installation
+
+            Install via Foundry's setup wizard with this manifest URL:
+
+            ```
+            https://github.com/${{ github.repository }}/releases/latest/download/module.json
+            ```
