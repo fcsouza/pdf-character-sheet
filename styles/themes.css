@@ -39,7 +39,18 @@
     height: auto;
   }
 
-  /* pdf.js positions the annotation layer absolutely over the canvas. */
+  /* Canvas and annotation layer stack, so they need a positioned parent of
+     their own — anchoring the layer to the scrolling container puts every
+     field off the page. */
+  .pdf-character-sheet .pdf-page {
+    position: relative;
+    display: block;
+  }
+
+  .pdf-character-sheet .pdf-page canvas {
+    display: block;
+  }
+
   .pdf-character-sheet .annotation-layer {
     position: absolute;
     inset: 0;

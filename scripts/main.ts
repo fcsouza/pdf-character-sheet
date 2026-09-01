@@ -8,6 +8,7 @@
 import './foundry-globals.js';
 import { registerModule } from '@vttforge/core';
 import { api } from './api.js';
+import { FillablePdfSheet } from './apps/fillable-sheet.js';
 import { PdfSheet } from './apps/pdf-sheet.js';
 import { PdfViewer } from './apps/pdf-viewer.js';
 import { MODULE_ID, PDF_TYPE } from './constants.js';
@@ -35,7 +36,16 @@ registerModule({
     registerPdfEnricher();
     registerCommands();
 
-    const { Items } = foundry.documents.collections;
+    const { Actors, Items } = foundry.documents.collections;
+
+    // Offered for every actor type, never as the default: a PDF sheet is a
+    // choice a GM makes per actor, and hijacking the system's own sheet would
+    // be the wrong kind of surprise.
+    Actors.registerSheet(MODULE_ID, FillablePdfSheet, {
+      makeDefault: false,
+      label: 'PDF_CHARACTER_SHEET.Fillable.title',
+    });
+
     Items.registerSheet(MODULE_ID, PdfSheet, {
       types: [PDF_TYPE],
       makeDefault: true,
