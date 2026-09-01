@@ -57,6 +57,9 @@
       "transPride": "Trans Pride",
       "nonbinaryPride": "Nonbinary Pride",
       "rainbowPride": "Rainbow Pride"
+    },
+    "Migration": {
+      "done": "PDF Character Sheet: moved {converted} PDF(s) from journal entries to items, and relinked {relinked} actor sheet(s)."
     }
   }
 }
