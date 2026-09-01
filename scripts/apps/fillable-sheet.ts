@@ -41,17 +41,39 @@ const NO_LINKS = {
 export const SHEET_FLAG = 'sheetItemId';
 
 /**
- * Paths a PDF is allowed to write.
+ * Where a PDF field's value is stored.
  *
- * Without this a field named `_id` or `items` would let a drawing tool
- * corrupt the document. Only the system data and the name are in scope.
+ * Most sheets in the wild are not drawn for any particular system. A real
+ * one — a 422-field Ordem Paranormal sheet, say — names its fields `atr_int`,
+ * `Nome do Personagem`, `ajuda_def`: for the human filling it in, not for a
+ * document path. Refusing those would make the module useless for every
+ * sheet its author did not also write.
+ *
+ * So there are two destinations. A field named for a system path writes
+ * there, which is what makes a PDF drive an actor's real data. Everything
+ * else is kept under the module's own flag, so the sheet still remembers
+ * what you typed even when nothing maps.
+ *
+ * `_id` is refused outright. Nothing good comes of letting a drawing tool
+ * rewrite a document's identity.
  */
-function writablePath(path: string): boolean {
-  return path === 'name' || path.startsWith('system.');
+function resolveFieldPath(fieldName: string): string | undefined {
+  if (!fieldName || fieldName.includes('_id')) return undefined;
+  if (fieldName === 'name' || fieldName.startsWith('system.')) return fieldName;
+
+  // Flag keys cannot contain dots — Foundry reads those as path separators —
+  // and a field named "Nome do Personagem" has spaces besides.
+  const key = fieldName.replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  return key ? `flags.${MODULE_ID}.formData.${key}` : undefined;
 }
 
 interface FillableOptions {
-  document: { name: string; system: object; update(delta: object): Promise<unknown> };
+  document: {
+    name: string;
+    system: object;
+    flags?: object;
+    update(delta: object): Promise<unknown>;
+  };
   url: string;
   title?: string;
 }
@@ -78,6 +100,7 @@ export class FillablePdfSheet extends ApplicationV2 {
     return foundry.utils.flattenObject({
       name: this.#document.name,
       system: this.#document.system,
+      flags: this.#document.flags ?? {},
     });
   }
 
@@ -149,8 +172,8 @@ export class FillablePdfSheet extends ApplicationV2 {
   #seed(layer: HTMLElement): void {
     const values = this.#flatten();
     for (const field of layer.querySelectorAll<HTMLInputElement>('input, select, textarea')) {
-      const path = field.name;
-      if (!path || !writablePath(path)) continue;
+      const path = resolveFieldPath(field.name);
+      if (!path) continue;
       const value = values[path];
       if (value === undefined) continue;
       if (field.type === 'checkbox' || field.type === 'radio') {
@@ -175,13 +198,10 @@ export class FillablePdfSheet extends ApplicationV2 {
     const field = event.target as HTMLInputElement | null;
     if (!field?.name) return;
 
-    const path = field.name;
-    if (!writablePath(path)) {
-      ui.notifications?.warn(
-        game.i18n.format('PDF_CHARACTER_SHEET.Fillable.rejectedPath', { path }),
-      );
-      return;
-    }
+    const path = resolveFieldPath(field.name);
+    // Only `_id` lands here, and a sheet full of them would otherwise be a
+    // sheet full of notifications. Staying quiet is the right call.
+    if (!path) return;
 
     const value =
       field.type === 'checkbox' || field.type === 'radio' ? field.checked : field.value;
