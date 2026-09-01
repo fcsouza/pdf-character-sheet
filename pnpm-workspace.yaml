@@ -1,0 +1,5 @@
+minimumReleaseAgeExclude:
+  - '@vttforge/cli@0.5.0'
+  - '@vttforge/core@0.6.0'
+  - '@vttforge/styles@0.3.0'
+  - '@vttforge/vite-plugin@0.3.1'

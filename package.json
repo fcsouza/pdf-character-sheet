@@ -12,12 +12,13 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vttforge/core": "link:../vttforge/packages/core",
-    "pdfjs-dist": "^5.4.149"
+    "@vttforge/core": "^0.6.0",
+    "pdfjs-dist": "^5.4.149",
+    "@vttforge/styles": "^0.3.0"
   },
   "devDependencies": {
-    "@vttforge/cli": "link:../vttforge/packages/cli",
-    "@vttforge/vite-plugin": "link:../vttforge/packages/vite-plugin",
+    "@vttforge/cli": "^0.5.0",
+    "@vttforge/vite-plugin": "^0.3.0",
     "typescript": "^5.4.0",
     "vite": "^8.2.2"
   },
