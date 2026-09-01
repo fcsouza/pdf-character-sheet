@@ -11,7 +11,10 @@ import { PdfSheet } from './apps/pdf-sheet.js';
 import { PdfViewer } from './apps/pdf-viewer.js';
 import { MODULE_ID, PDF_TYPE } from './constants.js';
 import { PdfData } from './data/pdf-data.js';
+import { registerCommands } from './commands.js';
 import { registerPdfEnricher } from './enricher.js';
+import { registerSettings } from './settings.js';
+import { registerSocket } from './socket.js';
 
 export interface PdfApi {
   /** Open a PDF item's file in a viewer window. */
@@ -22,8 +25,14 @@ registerModule({
   id: MODULE_ID,
   itemDataModels: { pdf: PdfData },
 
+  onReady: () => {
+    registerSocket();
+  },
+
   onAfterInit: () => {
+    registerSettings();
     registerPdfEnricher();
+    registerCommands();
 
     const { Items } = foundry.documents.collections;
     Items.registerSheet(MODULE_ID, PdfSheet, {

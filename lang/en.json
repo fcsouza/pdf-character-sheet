@@ -30,6 +30,33 @@
     "Fillable": {
       "rejectedPath": "This PDF has a field named \"{path}\", which is outside the actor\u2019s system data. It was ignored.",
       "title": "PDF sheet"
+    },
+    "Settings": {
+      "cacheSize": {
+        "name": "PDF cache size (MB)",
+        "hint": "How much disk to spend keeping opened PDFs local. Set to 0 to cache nothing."
+      },
+      "reuseViewer": {
+        "name": "Reuse an open viewer",
+        "hint": "When the GM shares a page, move a viewer that already has the file open instead of opening a second one."
+      },
+      "theme": {
+        "name": "Viewer theme",
+        "hint": "Colours the window and form fields. Does not change the page itself."
+      }
+    },
+    "Commands": {
+      "purged": "PDF cache cleared \u2014 {size} freed.",
+      "size": "PDF cache is holding {size}.",
+      "unknown": "Unknown command \"/pdf {command}\". Try purge or size."
+    },
+    "Themes": {
+      "default": "Follow Foundry",
+      "netRunner": "Net Runner",
+      "fantasy": "Fantasy",
+      "transPride": "Trans Pride",
+      "nonbinaryPride": "Nonbinary Pride",
+      "rainbowPride": "Rainbow Pride"
     }
   }
 }

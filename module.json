@@ -18,6 +18,9 @@
   "styles": [
     {
       "src": "styles/main.css"
+    },
+    {
+      "src": "styles/themes.css"
     }
   ],
   "languages": [

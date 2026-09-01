@@ -18,6 +18,7 @@
  */
 import * as pdfjs from 'pdfjs-dist';
 import { MODULE_ID } from '../constants.js';
+import { themeClass } from '../settings.js';
 
 const { ApplicationV2 } = foundry.applications.api;
 
@@ -78,6 +79,13 @@ export class FillablePdfSheet extends ApplicationV2 {
       name: this.#document.name,
       system: this.#document.system,
     });
+  }
+
+  /** Publish the reader's chosen palette on the window element. */
+  _onFirstRender(context: unknown, options: unknown): void {
+    const theme = themeClass();
+    if (theme) this.element?.classList.add(theme);
+    super._onFirstRender?.(context as never, options as never);
   }
 
   async _renderHTML(): Promise<HTMLElement> {

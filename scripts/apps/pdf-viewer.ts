@@ -6,6 +6,7 @@
  * package instead: fewer moving parts, and the bundler owns the worker.
  */
 import * as pdfjs from 'pdfjs-dist';
+import { themeClass } from '../settings.js';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 
 // pdf.js parses in a worker. Vite rewrites this to the emitted asset, which
@@ -43,7 +44,38 @@ export class PdfViewer extends ApplicationV2 {
     this.#page = options.page ?? 1;
   }
 
+  /** The file this viewer is showing. Read by the socket to find it again. */
+  get url(): string {
+    return this.#url;
+  }
+
+  /** The page currently drawn. */
+  get page(): number {
+    return this.#page;
+  }
+
+  /**
+   * Turn to a page and redraw.
+   *
+   * Clamped to the document, and a no-op when already there — the socket
+   * broadcasts reach the sender too, so this is called with the current page
+   * more often than not.
+   */
+  async goToPage(page: number): Promise<void> {
+    const target = Math.max(1, Math.trunc(page));
+    if (target === this.#page) return;
+    this.#page = target;
+    await this.render();
+  }
+
   /** Renders the current page into a fresh canvas. */
+  /** Publish the reader's chosen palette on the window element. */
+  _onFirstRender(context: unknown, options: unknown): void {
+    const theme = themeClass();
+    if (theme) this.element?.classList.add(theme);
+    super._onFirstRender?.(context as never, options as never);
+  }
+
   async _renderHTML(): Promise<HTMLElement> {
     const container = document.createElement('div');
     container.className = 'pdf-viewer-body';

@@ -1,0 +1,124 @@
+/*
+ * Viewer themes.
+ *
+ * The v10 module shipped ten themes that recoloured pdf.js's prebuilt web
+ * viewer — its toolbar, sidebar, thumbnail pane and find bar. This port
+ * renders the page itself (a canvas plus the form controls above it) and
+ * embeds none of that chrome, so those rules had nothing left to style.
+ *
+ * The palettes survive; what they paint changed. Each theme now colours the
+ * window, the surround the page sits on, and the form fields.
+ *
+ * Inside a cascade layer so a game system's own CSS can win without anyone
+ * writing !important.
+ */
+@layer pdf-character-sheet {
+  .pdf-character-sheet {
+    --pcs-surround: var(--color-bg-secondary, #2b2a24);
+    --pcs-ink: var(--color-text-primary, #f0f0e0);
+    --pcs-accent: var(--color-warm-2, #a44);
+    --pcs-field-bg: rgb(255 255 255 / 82%);
+    --pcs-field-ink: #111;
+    --pcs-field-border: rgb(0 0 0 / 35%);
+  }
+
+  .pdf-character-sheet .pdf-pages {
+    background: var(--pcs-surround);
+    color: var(--pcs-ink);
+    display: grid;
+    justify-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    overflow: auto;
+  }
+
+  /* The page keeps its own white; a shadow separates it from the surround. */
+  .pdf-character-sheet canvas {
+    box-shadow: 0 2px 12px rgb(0 0 0 / 45%);
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* pdf.js positions the annotation layer absolutely over the canvas. */
+  .pdf-character-sheet .annotation-layer {
+    position: absolute;
+    inset: 0;
+  }
+
+  .pdf-character-sheet .annotation-layer input,
+  .pdf-character-sheet .annotation-layer select,
+  .pdf-character-sheet .annotation-layer textarea {
+    background: var(--pcs-field-bg);
+    color: var(--pcs-field-ink);
+    border: 1px solid var(--pcs-field-border);
+    border-radius: 2px;
+    font: inherit;
+  }
+
+  .pdf-character-sheet .annotation-layer :is(input, select, textarea):focus-visible {
+    outline: 2px solid var(--pcs-accent);
+    outline-offset: 1px;
+  }
+
+  /* A link the enricher produced, in chat or a journal. */
+  .pdf-character-sheet-link {
+    color: var(--color-text-hyperlink, #7b6cff);
+    text-decoration: underline dotted;
+    cursor: pointer;
+  }
+
+  /* --- palettes ------------------------------------------------------- */
+
+  .pdf-character-sheet.theme-net-runner {
+    --pcs-surround: #000;
+    --pcs-ink: #00ff41;
+    --pcs-accent: #00ff41;
+    --pcs-field-bg: rgb(0 41 0 / 85%);
+    --pcs-field-ink: #00ff41;
+    --pcs-field-border: #008100;
+  }
+
+  .pdf-character-sheet.theme-fantasy {
+    --pcs-surround: #2e2418;
+    --pcs-ink: #f2e5c8;
+    --pcs-accent: #c8a45c;
+    --pcs-field-bg: rgb(247 240 219 / 88%);
+    --pcs-field-ink: #2e2418;
+    --pcs-field-border: #8a6f3c;
+  }
+
+  .pdf-character-sheet.theme-trans-pride {
+    --pcs-surround: #2a2f36;
+    --pcs-ink: #fff;
+    --pcs-accent: #f5a9b8;
+    --pcs-field-bg: rgb(255 255 255 / 90%);
+    --pcs-field-ink: #2a2f36;
+    --pcs-field-border: #5bcefa;
+  }
+
+  .pdf-character-sheet.theme-nonbinary-pride {
+    --pcs-surround: #1c1c1c;
+    --pcs-ink: #fcf434;
+    --pcs-accent: #9c59d1;
+    --pcs-field-bg: rgb(255 255 255 / 90%);
+    --pcs-field-ink: #1c1c1c;
+    --pcs-field-border: #9c59d1;
+  }
+
+  .pdf-character-sheet.theme-rainbow-pride {
+    --pcs-surround: #241a2e;
+    --pcs-ink: #fff;
+    --pcs-accent: #ff8c00;
+    --pcs-field-bg: rgb(255 255 255 / 90%);
+    --pcs-field-ink: #241a2e;
+    --pcs-field-border: #8e4ec6;
+  }
+
+  /* Someone reading a sheet for hours should not be fighting motion. */
+  @media (prefers-reduced-motion: reduce) {
+    .pdf-character-sheet * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+}
