@@ -1,0 +1,27 @@
+{
+  "PDF_CHARACTER_SHEET": {
+    "Item": {
+      "pdf": "PDF"
+    },
+    "Sheet": {
+      "pdf": {
+        "title": "PDF"
+      }
+    },
+    "Field": {
+      "url": "File",
+      "code": "Code",
+      "offset": "Page offset",
+      "pdfType": "Kind",
+      "cache": "Cache locally"
+    },
+    "Kind": {
+      "static": "Static",
+      "fillable": "Fillable",
+      "actor": "Actor-linked"
+    },
+    "Viewer": {
+      "noUrl": "This PDF item has no file set yet."
+    }
+  }
+}

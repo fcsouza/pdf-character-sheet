@@ -1,15 +1,18 @@
 {
   "compilerOptions": {
-    "target": "es2020",
-    "strictNullChecks": true,
-    "alwaysStrict": true,
-    "types": [
-      "@league-of-foundry-developers/foundry-vtt-types",
-      "./FVTT-Common/src/types"
-    ],
-    "moduleResolution": "node",
-    "baseUrl": "",
+    "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
     "esModuleInterop": true,
-    "paths": { }
-  }
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": false
+  },
+  "include": ["scripts/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
