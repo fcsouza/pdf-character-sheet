@@ -26,6 +26,10 @@
     "Enricher": {
       "open": "Open {name} at page {page}",
       "notFound": "No PDF found with a name or code matching \"{reference}\"."
+    },
+    "Fillable": {
+      "rejectedPath": "This PDF has a field named \"{path}\", which is outside the actor\u2019s system data. It was ignored.",
+      "title": "PDF sheet"
     }
   }
 }
