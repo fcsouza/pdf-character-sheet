@@ -6,15 +6,12 @@
  * module contributes and lets the SDK apply it in the right hook.
  */
 import './foundry-globals.js';
-import { moduleSubType, registerModule } from '@vttforge/core';
+import { registerModule } from '@vttforge/core';
 import { PdfSheet } from './apps/pdf-sheet.js';
 import { PdfViewer } from './apps/pdf-viewer.js';
+import { MODULE_ID, PDF_TYPE } from './constants.js';
 import { PdfData } from './data/pdf-data.js';
-
-const MODULE_ID = 'pdf-character-sheet';
-
-/** The Item subtype key Foundry files this module's PDFs under. */
-export const PDF_TYPE = moduleSubType(MODULE_ID, 'pdf');
+import { registerPdfEnricher } from './enricher.js';
 
 export interface PdfApi {
   /** Open a PDF item's file in a viewer window. */
@@ -26,6 +23,8 @@ registerModule({
   itemDataModels: { pdf: PdfData },
 
   onAfterInit: () => {
+    registerPdfEnricher();
+
     const { Items } = foundry.documents.collections;
     Items.registerSheet(MODULE_ID, PdfSheet, {
       types: [PDF_TYPE],
