@@ -51,14 +51,34 @@
     display: block;
   }
 
-  .pdf-character-sheet .annotation-layer {
+  /*
+   * pdf.js ships its own stylesheet for this layer and expects the class to be
+   * `annotationLayer` — camelCase. Naming it `annotation-layer` matched
+   * nothing, so every field lost its absolute positioning and stacked down the
+   * left margin instead of sitting on the page.
+   *
+   * These are the rules that matter, lifted rather than importing the whole
+   * viewer stylesheet: most of that file styles a toolbar, sidebar and find
+   * bar this module does not embed.
+   */
+  .pdf-character-sheet .annotationLayer {
     position: absolute;
     inset: 0;
+    /* Each field's inline left/top is `calc(var(--scale-factor) * Npx)`. */
+    transform-origin: 0 0;
   }
 
-  .pdf-character-sheet .annotation-layer input,
-  .pdf-character-sheet .annotation-layer select,
-  .pdf-character-sheet .annotation-layer textarea {
+  .pdf-character-sheet .annotationLayer section {
+    position: absolute;
+    text-align: initial;
+    pointer-events: auto;
+    box-sizing: border-box;
+    transform-origin: 0 0;
+  }
+
+  .pdf-character-sheet .annotationLayer input,
+  .pdf-character-sheet .annotationLayer select,
+  .pdf-character-sheet .annotationLayer textarea {
     background: var(--pcs-field-bg);
     color: var(--pcs-field-ink);
     border: 1px solid var(--pcs-field-border);
@@ -66,7 +86,7 @@
     font: inherit;
   }
 
-  .pdf-character-sheet .annotation-layer :is(input, select, textarea):focus-visible {
+  .pdf-character-sheet .annotationLayer :is(input, select, textarea):focus-visible {
     outline: 2px solid var(--pcs-accent);
     outline-offset: 1px;
   }

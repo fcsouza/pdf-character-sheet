@@ -150,7 +150,7 @@ export class FillablePdfSheet extends ActorSheetV2 {
     const context = canvas.getContext('2d');
 
     const layer = document.createElement('div');
-    layer.className = 'annotation-layer';
+    layer.className = 'annotationLayer';
 
     if (context) {
       // ENABLE_FORMS is what turns annotations into real form controls. Without
