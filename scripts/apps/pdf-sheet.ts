@@ -3,10 +3,9 @@
  * where the PDF is opened from.
  */
 import { BaseItemSheet } from '@vttforge/core';
+import { MODULE_ID } from '../constants.js';
 import { PDF_TYPES } from '../data/pdf-data.js';
 import { PdfViewer } from './pdf-viewer.js';
-
-const MODULE_ID = 'pdf-character-sheet';
 
 export class PdfSheet extends BaseItemSheet() {
   static DEFAULT_OPTIONS = foundry.utils.mergeObject(

@@ -22,6 +22,10 @@
     },
     "Viewer": {
       "noUrl": "This PDF item has no file set yet."
+    },
+    "Enricher": {
+      "open": "Open {name} at page {page}",
+      "notFound": "No PDF found with a name or code matching \"{reference}\"."
     }
   }
 }
