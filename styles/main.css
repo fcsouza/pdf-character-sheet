@@ -14,3 +14,45 @@
   background: rgba(0, 0, 0, 0.08);
   font-size: 0.8em;
 }
+
+@layer pdf-character-sheet {
+  /* The path browser is a reference you scan, not a form you fill in, so it
+     is a scrolling table with a filter pinned above it. */
+  .pdf-path-browser-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 60vh;
+  }
+
+  .pdf-path-filter {
+    flex: 0 0 auto;
+  }
+
+  .pdf-path-browser {
+    display: block;
+    overflow-y: auto;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-13, 0.8125rem);
+  }
+
+  .pdf-path-browser th,
+  .pdf-path-browser td {
+    padding: 0.2rem 0.4rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border-light, rgb(0 0 0 / 15%));
+  }
+
+  /* Paths are what you copy into a PDF editor; a proportional face makes
+     `system.hp.value` harder to read back than it needs to be. */
+  .pdf-path-browser td:first-child {
+    font-family: var(--font-mono, monospace);
+    white-space: nowrap;
+  }
+
+  .pdf-path-browser td:last-child {
+    color: var(--color-text-secondary, inherit);
+    word-break: break-word;
+  }
+}

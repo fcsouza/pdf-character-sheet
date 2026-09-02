@@ -15,9 +15,37 @@ import { MODULE_ID, PDF_TYPE } from './constants.js';
 import { PdfData } from './data/pdf-data.js';
 import { registerCommands } from './commands.js';
 import { pdfEnricher } from './enricher.js';
+import { chooseActorSheet } from './apps/pickers.js';
 import { migrations } from './migrations.js';
 import { registerSettings } from './settings.js';
 import { registerSocket } from './socket.js';
+
+/**
+ * "Choose PDF sheet" in the actor directory's right-click menu.
+ *
+ * The header button on the sheet only helps someone who already has the PDF
+ * sheet open. Getting there the first time starts in the directory, which is
+ * why this exists too.
+ *
+ * v13 names the hook after the document — `getActorContextOptions` — not the
+ * v12 `getActorDirectoryEntryContext`.
+ */
+function registerActorContextMenu(): void {
+  Hooks.on(
+    'getActorContextOptions',
+    (_directory: unknown, options: Array<Record<string, unknown>>) => {
+      options.push({
+        name: 'PDF_CHARACTER_SHEET.Controls.chooseSheet',
+        icon: '<i class="fa-solid fa-file-circle-check"></i>',
+        condition: () => Boolean(game.user?.isGM),
+        callback: (li: HTMLElement) => {
+          const actor = game.actors?.get(li.dataset.entryId ?? '');
+          if (actor) void chooseActorSheet(actor as never);
+        },
+      });
+    },
+  );
+}
 
 registerModule({
   id: MODULE_ID,
@@ -56,6 +84,7 @@ registerModule({
     registerSettings();
     migrations.register();
     registerCommands();
+    registerActorContextMenu();
 
     const handle = game.modules.get(MODULE_ID);
     if (handle) handle.api = api;
