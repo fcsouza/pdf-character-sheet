@@ -8,10 +8,9 @@
  * enters the DOM, so the link and its behaviour are declared in one place
  * and the jQuery pass disappears.
  */
+import type { EnricherRegistration } from '@vttforge/core';
 import { PDF_TYPE } from './constants.js';
 import { PdfViewer } from './apps/pdf-viewer.js';
-
-const ENRICHER_ID = 'pdf-character-sheet.link';
 
 /** `@PDF[reference]{display text}` */
 const PATTERN = /@PDF\[(.+?)\]\{(.+?)\}/g;
@@ -38,59 +37,59 @@ function parsePage(query: string | undefined): number {
   return Number.isInteger(page) && page > 0 ? page : 1;
 }
 
-export function registerPdfEnricher(): void {
-  CONFIG.TextEditor.enrichers.push({
-    id: ENRICHER_ID,
-    pattern: PATTERN,
+export const pdfEnricher: EnricherRegistration = {
+  // Registered as `pdf-character-sheet.link`. The prefix is what keeps this
+  // from colliding with any other package that also names its enricher `link`.
+  id: 'link',
+  pattern: PATTERN,
 
-    enricher: async (match: RegExpMatchArray) => {
-      const [, reference, displayText] = match;
-      const [nameOrCode, query] = (reference ?? '').split('|');
-      const item = nameOrCode ? findPdf(nameOrCode) : undefined;
+  enricher: async (match: RegExpMatchArray) => {
+    const [, reference, displayText] = match;
+    const [nameOrCode, query] = (reference ?? '').split('|');
+    const item = nameOrCode ? findPdf(nameOrCode) : undefined;
 
-      // No such PDF, or the reader is not allowed to see it: render the text
-      // without a link rather than advertising a document they cannot open.
-      const visible = item?.testUserPermission?.(game.user, 'LIMITED') ?? Boolean(item);
-      if (!item || !visible) {
-        const span = document.createElement('span');
-        span.textContent = displayText ?? '';
-        return span;
-      }
+    // No such PDF, or the reader is not allowed to see it: render the text
+    // without a link rather than advertising a document they cannot open.
+    const visible = item?.testUserPermission?.(game.user, 'LIMITED') ?? Boolean(item);
+    if (!item || !visible) {
+      const span = document.createElement('span');
+      span.textContent = displayText ?? '';
+      return span;
+    }
 
-      const page = parsePage(query);
-      const anchor = document.createElement('a');
-      anchor.className = 'pdf-character-sheet-link';
-      anchor.dataset.reference = nameOrCode ?? '';
-      anchor.dataset.page = String(page);
-      anchor.textContent = displayText ?? '';
-      anchor.title = game.i18n.format('PDF_CHARACTER_SHEET.Enricher.open', {
-        name: item.name,
-        page,
+    const page = parsePage(query);
+    const anchor = document.createElement('a');
+    anchor.className = 'pdf-character-sheet-link';
+    anchor.dataset.reference = nameOrCode ?? '';
+    anchor.dataset.page = String(page);
+    anchor.textContent = displayText ?? '';
+    anchor.title = game.i18n.format('PDF_CHARACTER_SHEET.Enricher.open', {
+      name: item.name,
+      page,
+    });
+    return anchor;
+  },
+
+  onRender: (element: HTMLElement) => {
+    for (const anchor of element.querySelectorAll<HTMLAnchorElement>(
+      'a.pdf-character-sheet-link',
+    )) {
+      anchor.addEventListener('click', (event) => {
+        event.preventDefault();
+        const reference = anchor.dataset.reference ?? '';
+        const item = findPdf(reference);
+        if (!item?.system.url) {
+          ui.notifications?.error(
+            game.i18n.format('PDF_CHARACTER_SHEET.Enricher.notFound', { reference }),
+          );
+          return;
+        }
+        void new PdfViewer({
+          url: item.system.url,
+          title: item.name,
+          page: Number(anchor.dataset.page ?? '1'),
+        }).render({ force: true });
       });
-      return anchor;
-    },
-
-    onRender: (element: HTMLElement) => {
-      for (const anchor of element.querySelectorAll<HTMLAnchorElement>(
-        'a.pdf-character-sheet-link',
-      )) {
-        anchor.addEventListener('click', (event) => {
-          event.preventDefault();
-          const reference = anchor.dataset.reference ?? '';
-          const item = findPdf(reference);
-          if (!item?.system.url) {
-            ui.notifications?.error(
-              game.i18n.format('PDF_CHARACTER_SHEET.Enricher.notFound', { reference }),
-            );
-            return;
-          }
-          void new PdfViewer({
-            url: item.system.url,
-            title: item.name,
-            page: Number(anchor.dataset.page ?? '1'),
-          }).render({ force: true });
-        });
-      }
-    },
-  });
-}
+    }
+  },
+};

@@ -14,7 +14,7 @@ import { PdfViewer } from './apps/pdf-viewer.js';
 import { MODULE_ID, PDF_TYPE } from './constants.js';
 import { PdfData } from './data/pdf-data.js';
 import { registerCommands } from './commands.js';
-import { registerPdfEnricher } from './enricher.js';
+import { pdfEnricher } from './enricher.js';
 import { migrations } from './migrations.js';
 import { registerSettings } from './settings.js';
 import { registerSocket } from './socket.js';
@@ -22,6 +22,8 @@ import { registerSocket } from './socket.js';
 registerModule({
   id: MODULE_ID,
   itemDataModels: { pdf: PdfData },
+
+  enrichers: [pdfEnricher],
 
   sheets: [
     // Offered for every actor type, never as the default: a PDF sheet is a
@@ -53,7 +55,6 @@ registerModule({
   onAfterInit: () => {
     registerSettings();
     migrations.register();
-    registerPdfEnricher();
     registerCommands();
 
     const handle = game.modules.get(MODULE_ID);
