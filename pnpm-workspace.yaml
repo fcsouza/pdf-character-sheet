@@ -3,3 +3,4 @@ minimumReleaseAgeExclude:
   - '@vttforge/core@0.6.0 || 0.8.0 || 0.9.0 || 0.10.0 || 0.11.0'
   - '@vttforge/styles@0.3.0 || 0.3.1'
   - '@vttforge/vite-plugin@0.3.1 || 0.4.0'
+  - '@vttforge/testing@0.3.0'

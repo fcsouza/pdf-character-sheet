@@ -16,11 +16,24 @@ export type PdfType = (typeof PDF_TYPES)[number];
 export const definePdfSchema = () => {
   const f = fields();
   return {
-    /** Where the PDF lives on the server. */
+    /**
+     * Where the PDF lives on the server.
+     *
+     * Blank until a file is chosen, and that is not an oversight. Foundry
+     * creates an Item before any sheet exists to pick a file in, so the
+     * schema has to describe an item that does not have one yet.
+     *
+     * It did not, and the item could not be created at all. `FilePathField`
+     * starts at `null` on its own, `nullable: false` refused that, and the
+     * Create Item dialog has nowhere to type a path, so every attempt died
+     * on "url: may not be null". The migration hit the other half of it: its
+     * own `url ?? ''` fallback was refused by `blank: false`.
+     */
     url: new f.FilePathField({
       required: true,
       nullable: false,
-      blank: false,
+      blank: true,
+      initial: '',
       categories: ['TEXT'],
     }),
     /**

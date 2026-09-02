@@ -19,6 +19,24 @@ interface PdfItem {
   system: { url: string; code: string; offset: number };
 }
 
+/**
+ * Find the item, and refuse the ones that have no file yet.
+ *
+ * A PDF item is creatable before a file is chosen, because Foundry makes the
+ * document first and the sheet is where you pick one. Every call below needs
+ * a file, so the two failures are named separately: a macro that mistyped a
+ * code and a macro that found a real item nobody has pointed at a PDF are
+ * different mistakes.
+ */
+function requirePdf(codeOrName: string): PdfItem {
+  const item = api.find(codeOrName);
+  if (!item) throw new Error(`No PDF found matching "${codeOrName}".`);
+  if (!item.system.url) {
+    throw new Error(`The PDF item "${item.name}" has no file chosen yet.`);
+  }
+  return item;
+}
+
 function allPdfs(): PdfItem[] {
   return (game.items?.filter((item: { type: string }) => item.type === PDF_TYPE) ??
     []) as PdfItem[];
@@ -50,8 +68,7 @@ export const api: PdfApi = {
   },
 
   async open(codeOrName, page = 1) {
-    const item = api.find(codeOrName);
-    if (!item) throw new Error(`No PDF found matching "${codeOrName}".`);
+    const item = requirePdf(codeOrName);
     // The offset maps the page printed on the paper to the page in the file:
     // a rulebook whose page 1 is the eighth sheet has an offset of 7.
     await new PdfViewer({
@@ -62,8 +79,7 @@ export const api: PdfApi = {
   },
 
   share(codeOrName, page = 1, userIds = null) {
-    const item = api.find(codeOrName);
-    if (!item) throw new Error(`No PDF found matching "${codeOrName}".`);
+    const item = requirePdf(codeOrName);
     shareView(
       { url: item.system.url, title: item.name, page: page + item.system.offset },
       userIds,
@@ -71,8 +87,7 @@ export const api: PdfApi = {
   },
 
   preload(codeOrName, userIds = null) {
-    const item = api.find(codeOrName);
-    if (!item) throw new Error(`No PDF found matching "${codeOrName}".`);
+    const item = requirePdf(codeOrName);
     requestPreload(item.system.url, userIds);
   },
 };
