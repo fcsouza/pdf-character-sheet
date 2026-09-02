@@ -30,13 +30,14 @@ jobs:
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
+      # No `version:` here on purpose. The action reads `packageManager` from
+      # package.json, and refuses outright when both are set — which is how
+      # the first v2.0.0 tag failed.
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 26
 
       - run: pnpm install
 
