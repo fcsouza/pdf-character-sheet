@@ -27,9 +27,20 @@ export class PdfSheet extends BaseItemSheet() {
     sheet: { template: `modules/${MODULE_ID}/templates/item/pdf-sheet.hbs` },
   };
 
+  /**
+   * The PDF item this sheet is for.
+   *
+   * `this.document` is `unknown` on the base — which document a sheet is for
+   * is the module's to know, not the SDK's. Saying it once here means every
+   * use below reads `item.system.url` with a real type instead of a cast.
+   */
+  get item(): { name: string; system: { url: string; code: string; pdfType: string } } {
+    return this.document as { name: string; system: { url: string; code: string; pdfType: string } };
+  }
+
   async _prepareContext(options: Record<string, unknown>): Promise<Record<string, unknown>> {
     const context = await super._prepareContext(options);
-    const item = this.document;
+    const item = this.item;
     return Object.assign(context, {
       item,
       system: item.system,
@@ -42,11 +53,11 @@ export class PdfSheet extends BaseItemSheet() {
   }
 
   static async _onOpenPdf(this: PdfSheet): Promise<void> {
-    const { url } = this.document.system;
+    const { url } = this.item.system;
     if (!url) {
       ui.notifications?.warn(game.i18n.localize('PDF_CHARACTER_SHEET.Viewer.noUrl'));
       return;
     }
-    await new PdfViewer({ url, title: this.document.name }).render({ force: true });
+    await new PdfViewer({ url, title: this.item.name }).render({ force: true });
   }
 }
