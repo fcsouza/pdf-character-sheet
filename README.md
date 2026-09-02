@@ -1,51 +1,98 @@
 # PDF Character Sheet
 
-PDF Character Sheet its just a fork of PDFoundry to use form fillable PDFs as character sheets for Foundry.
+Use form-fillable PDFs as character sheets in Foundry VTT. Point an actor at a
+PDF, and the fields you filled in are the sheet.
 
-all credits to the base version goes to [Andrew Cuccinello.](https://github.com/lozalojo)
+Requires **Foundry v13 or newer**.
 
-If you have a suggestion you are welcome to open a pull request and collaborate.
+[![GitHub release](https://img.shields.io/github/v/release/fcsouza/pdf-character-sheet)](https://github.com/fcsouza/pdf-character-sheet/releases)
+[![Issues](https://img.shields.io/github/issues/fcsouza/pdf-character-sheet)](https://github.com/fcsouza/pdf-character-sheet/issues)
+[![License](https://img.shields.io/github/license/fcsouza/pdf-character-sheet)](LICENSE)
 
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/fcsouza/pdf-character-sheet)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/fcsouza/pdf-character-sheet/Release%20Module)
-[![GitHub issues](https://img.shields.io/github/issues/fcsouza/pdf-character-sheet)](https://github.com/fcsouza/pdf-character-sheet/issues)
-[![GitHub license](https://img.shields.io/github/license/fcsouza/pdf-character-sheet)](https://github.com/fcsouza/pdf-character-sheet/blob/master/LICENSE)
-[![GitHub pull requests](https://img.shields.io/badge/pull%20requests-welcome-green)](https://github.com/fcsouza/pdf-character-sheet/compare)
+---
 
-![GitHub All Releases](https://img.shields.io/github/downloads/fcsouza/pdf-character-sheet/total)
-![GitHub Releases](https://img.shields.io/github/downloads/fcsouza/pdf-character-sheet/latest/total)
+> **This is a rewrite, not the old module with patches.** Foundry v13 deprecated
+> `Application` and `FormApplication`, removed `ui.windows`, and moved on from
+> jQuery. The v10 code also vendored its own copy of pdf.js and drove that
+> viewer's private event bus. So PDFs are now **items** with a real data model,
+> the viewer draws to a canvas from the npm `pdfjs-dist`, and the bundler owns
+> the worker. The behaviour you knew is the same; almost none of the code is.
 
-PDF Character Sheet is a *fully featured* PDF viewer using the base version of PDFoundry for FoundryVTT to support PDF Fillable Forms to use as character sheets.
+## Install
 
-#### Thanks to
-Spanish localization: [José E. Lozano (lozalojo)](https://github.com/lozalojo)
+Paste this into Foundry's **Install Module** dialog:
 
-French localization: [Baktov](https://github.com/Baktov)
+```
+https://github.com/fcsouza/pdf-character-sheet/releases/latest/download/module.json
+```
 
-## Community Resources
-[Tutorials and resources created by users of PDFoundry can be found here](https://github.com/fcsouza/pdf-character-sheet/wiki/Community-Resources)
+The v13 rewrite has not been released yet, so that link still serves the last
+v10 build. Until it is cut, build from source — see below.
 
-## Setup
-PDF Character Sheet is easily installable - find it in the modules list inside Foundry VTT. Alternatively, you can use the manifest link below.
+## Using it
 
-### Manifest
-> https://raw.githubusercontent.com/fcsouza/pdf-character-sheet/master/module.json
+**Add a PDF.** Create an Item of type *PDF*, set the file, and give it a short
+code — `PHB`, `OP` — so you can reference it from chat. The page offset is
+there for books whose printed page 1 is not the file's page 1.
 
-## System Developers
-I highly recommend you do not bundle PDF Character Sheet - if you do however, the module version will disable itself and display a warning to the user. Instead, you can see the [documentation](https://fcsouza.github.io/pdf-character-sheet/index.html) for an example of checking for the presence of PDF Character Sheet, and enabling additional support if it is found.
+**Point an actor at it.** Right-click the actor in the sidebar and choose *PDF
+sheet*, or open the sheet and use the header button. Choosing *None* puts the
+actor back on the system's own sheet.
 
-### Building PDF Character Sheet
-If you wish to build PDF Character Sheet yourself - most commonly because you want to contribute - you can do the following.
+**Field names decide where a value goes.** A field named for a document path —
+`name`, `system.health.value` — writes there. Anything else is remembered under
+the module's own flag, so a sheet drawn for no particular system still keeps
+what you type. The *Data paths* button on the sheet lists every path the actor
+exposes, which is what you name fields after.
 
-1. Clone the repository anywhere
-2. Copy `foundryconfig.example.json` and rename it `foundryconfig.json`. Edit the dataPath to your data folder.
-2. Open a terminal, navigate to the repository directory
-3. Run `npm install`
-4. Run `gulp build` to perform a one off build, or `gulp watch` to perform incremental builds as you change things
+**Share a page.** Open a PDF and use the share button in the window header to
+send the page you are on to whichever players you pick.
 
-### API Examples
+## In chat and journals
 
-See the [documentation](https://fcsouza.github.io/pdf-character-sheet/index.html) for details and examples.
+```
+@PDF[OP]{the agent sheet}
+@PDF[OP|page=12]{combat rules}
+```
+
+Renders as a link that opens the PDF at that page. Readers who cannot see the
+PDF get the text without a link, rather than a link they cannot follow.
+
+## Commands
+
+| Command | What it does |
+|---|---|
+| `/pdf size` | How much the local PDF cache is holding |
+| `/pdf purge` | Empty it |
+
+## API
+
+On `game.modules.get('pdf-character-sheet').api`:
+
+```ts
+all()                                  // every PDF item in the world
+find(codeOrName)                       // one, by code or by name
+open(codeOrName, page?)                // open it locally
+share(codeOrName, page?, userIds?)     // open it on other clients; null means everyone
+preload(codeOrName, userIds?)          // warm the cache before a session
+```
+
+`open` and `share` take the page as printed in the book — the item's offset is
+applied for you.
+
+## Building from source
+
+```bash
+pnpm install
+pnpm build     # dist/ plus a release zip
+pnpm dev       # builds, links dist/ into your Foundry data dir, and watches
+```
+
+`pnpm dev` asks where Foundry keeps its data on the first run and remembers the
+answer. If Foundry runs in a container it cannot follow that symlink, and the
+command prints the compose mount to use instead.
+
+Built with the [VTTForge](https://vttforge.dev) SDK.
 
 ## pdf.js version
 
@@ -55,3 +102,16 @@ The annotation layer is the part of that API this module leans on hardest,
 and it is the part most likely to have moved in a major. The current
 rendering is verified working against 5.x, so a bump belongs in its own
 change with that as the baseline — not folded into anything else.
+
+## Credits
+
+Originally a fork of [PDFoundry](https://github.com/Djphoenix719/PDFoundry) by
+Andrew Cuccinello, whose design of the fillable-sheet contract this still
+follows.
+
+Localization: Spanish by [José E. Lozano](https://github.com/lozalojo), French
+by [Baktov](https://github.com/Baktov).
+
+## License
+
+[Apache-2.0](LICENSE)
