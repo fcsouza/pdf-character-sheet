@@ -12,7 +12,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Resolve version from tag
         id: version
@@ -33,9 +33,9 @@ jobs:
       # No `version:` here on purpose. The action reads `packageManager` from
       # package.json, and refuses outright when both are set — which is how
       # the first v2.0.0 tag failed.
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 26
 
@@ -77,7 +77,7 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
           PKG_ID: 'pdf-character-sheet'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
           files: |
             ${{ env.PKG_ID }}-${{ env.VERSION }}.zip
