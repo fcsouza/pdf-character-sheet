@@ -17,13 +17,11 @@
  * and lets events bubble.
  */
 import * as pdfjs from 'pdfjs-dist';
+import { BaseDocumentSheet } from '@vttforge/core';
 import { MODULE_ID } from '../constants.js';
 import { themeClass } from '../settings.js';
 
-// ActorSheetV2, not bare ApplicationV2. Foundry's sheet machinery builds
-// `actor.sheet` from the registered class, and a plain ApplicationV2 is not
-// one — it leaves `actor.sheet` null with no error anywhere.
-const { ActorSheetV2 } = foundry.applications.sheets;
+
 
 /**
  * A link service that does nothing.
@@ -82,7 +80,7 @@ interface SheetActor {
   update(delta: object): Promise<unknown>;
 }
 
-export class FillablePdfSheet extends ActorSheetV2 {
+export class FillablePdfSheet extends BaseDocumentSheet('Actor') {
   static DEFAULT_OPTIONS = {
     classes: [MODULE_ID, 'fillable-pdf'],
     window: { resizable: true },
@@ -205,14 +203,6 @@ export class FillablePdfSheet extends ActorSheetV2 {
     return container;
   }
 
-  /**
-   * ApplicationV2 needs both halves. `_renderHTML` builds the content and
-   * `_replaceHTML` puts it in the window — declaring only the first leaves the
-   * class unrenderable, and Foundry says so only when something tries.
-   */
-  _replaceHTML(result: HTMLElement, content: HTMLElement): void {
-    content.replaceChildren(result);
-  }
 
   /** Copy the document's values into the freshly rendered fields. */
   #seed(layer: HTMLElement): void {

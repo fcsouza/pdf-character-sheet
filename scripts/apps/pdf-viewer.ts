@@ -6,6 +6,7 @@
  * package instead: fewer moving parts, and the bundler owns the worker.
  */
 import * as pdfjs from 'pdfjs-dist';
+import { BaseApplication } from '@vttforge/core';
 import { themeClass } from '../settings.js';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 
@@ -16,8 +17,6 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url,
 ).href;
 
-const { ApplicationV2 } = foundry.applications.api;
-
 export interface PdfViewerOptions {
   /** Where the PDF lives, as Foundry serves it. */
   url: string;
@@ -27,7 +26,7 @@ export interface PdfViewerOptions {
   page?: number;
 }
 
-export class PdfViewer extends ApplicationV2 {
+export class PdfViewer extends BaseApplication() {
   static DEFAULT_OPTIONS = {
     classes: ['pdf-character-sheet', 'pdf-viewer'],
     window: { resizable: true, icon: 'fa-solid fa-file-pdf' },
@@ -93,10 +92,6 @@ export class PdfViewer extends ApplicationV2 {
     }
     container.appendChild(canvas);
     return container;
-  }
-
-  _replaceHTML(result: HTMLElement, content: HTMLElement): void {
-    content.replaceChildren(result);
   }
 
   /** Release the parsed document when the window closes. */

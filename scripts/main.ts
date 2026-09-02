@@ -23,6 +23,26 @@ registerModule({
   id: MODULE_ID,
   itemDataModels: { pdf: PdfData },
 
+  sheets: [
+    // Offered for every actor type, never as the default: a PDF sheet is a
+    // choice a GM makes per actor, and hijacking the system's own sheet would
+    // be the wrong kind of surprise.
+    {
+      id: 'fillable',
+      document: 'Actor',
+      sheet: FillablePdfSheet,
+      label: 'PDF_CHARACTER_SHEET.Fillable.title',
+    },
+    {
+      id: 'pdf',
+      document: 'Item',
+      sheet: PdfSheet,
+      types: [PDF_TYPE],
+      makeDefault: true,
+      label: 'PDF_CHARACTER_SHEET.Sheet.pdf.title',
+    },
+  ],
+
   onReady: async () => {
     registerSocket();
     // GM only, and before anything reads an item: a world coming from v10
@@ -35,22 +55,6 @@ registerModule({
     migrations.register();
     registerPdfEnricher();
     registerCommands();
-
-    const { Actors, Items } = foundry.documents.collections;
-
-    // Offered for every actor type, never as the default: a PDF sheet is a
-    // choice a GM makes per actor, and hijacking the system's own sheet would
-    // be the wrong kind of surprise.
-    Actors.registerSheet(MODULE_ID, FillablePdfSheet, {
-      makeDefault: false,
-      label: 'PDF_CHARACTER_SHEET.Fillable.title',
-    });
-
-    Items.registerSheet(MODULE_ID, PdfSheet, {
-      types: [PDF_TYPE],
-      makeDefault: true,
-      label: 'PDF_CHARACTER_SHEET.Sheet.pdf.title',
-    });
 
     const handle = game.modules.get(MODULE_ID);
     if (handle) handle.api = api;
