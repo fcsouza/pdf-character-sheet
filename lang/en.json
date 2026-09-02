@@ -28,7 +28,7 @@
       "notFound": "No PDF found with a name or code matching \"{reference}\"."
     },
     "Fillable": {
-      "rejectedPath": "This PDF has a field named \"{path}\", which is outside the actor\u2019s system data. It was ignored.",
+      "rejectedPath": "This PDF has a field named \"{path}\", which is outside the actor’s system data. It was ignored.",
       "title": "PDF sheet",
       "noPdfChosen": "No PDF chosen for this actor yet. Pick one from the sheet settings."
     },
@@ -47,7 +47,7 @@
       }
     },
     "Commands": {
-      "purged": "PDF cache cleared \u2014 {size} freed.",
+      "purged": "PDF cache cleared — {size} freed.",
       "size": "PDF cache is holding {size}.",
       "unknown": "Unknown command \"/pdf {command}\". Try purge or size."
     },
@@ -61,6 +61,36 @@
     },
     "Migration": {
       "done": "PDF Character Sheet: moved {converted} PDF(s) from journal entries to items, and relinked {relinked} actor sheet(s)."
+    },
+    "Pick": {
+      "sheetTitle": "PDF sheet for {name}",
+      "sheetLabel": "Sheet",
+      "sheetHint": "Which PDF this actor's sheet is drawn from. One file can back many characters.",
+      "none": "— None —",
+      "choose": "Choose",
+      "chosen": "Sheet set to {name}.",
+      "cleared": "{name} is back on the system's own sheet.",
+      "noSheets": "No fillable or actor-linked PDF items exist yet. Create a PDF item first.",
+      "playersTitle": "Send this page to",
+      "playersLabel": "Players",
+      "playersHint": "Anyone offline sees nothing — the page is sent now, not remembered.",
+      "offline": "{name} (offline)",
+      "send": "Send",
+      "noPlayers": "There is nobody else connected to send a page to.",
+      "sentNobody": "Nobody was selected, so nothing was sent.",
+      "sent": "Sent page {page} to {count} player(s)."
+    },
+    "Paths": {
+      "title": "Data paths for {name}",
+      "path": "Path",
+      "value": "Current value",
+      "filter": "Filter paths…",
+      "close": "Close"
+    },
+    "Controls": {
+      "chooseSheet": "Choose PDF sheet",
+      "browsePaths": "Data paths",
+      "share": "Share page"
     }
   }
 }

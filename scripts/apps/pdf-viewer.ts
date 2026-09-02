@@ -8,6 +8,8 @@
 import * as pdfjs from 'pdfjs-dist';
 import { BaseApplication } from '@vttforge/core';
 import { themeClass } from '../settings.js';
+import { pickPlayers } from './pickers.js';
+import { shareView } from '../socket.js';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 
 // pdf.js parses in a worker. Vite rewrites this to the emitted asset, which
@@ -29,9 +31,42 @@ export interface PdfViewerOptions {
 export class PdfViewer extends BaseApplication() {
   static DEFAULT_OPTIONS = {
     classes: ['pdf-character-sheet', 'pdf-viewer'],
-    window: { resizable: true, icon: 'fa-solid fa-file-pdf' },
+    window: {
+      resizable: true,
+      icon: 'fa-solid fa-file-pdf',
+      // Sharing a page was API-only. The GM turning the page is the whole
+      // point of the socket, and it had no way in.
+      controls: [
+        {
+          action: 'sharePage',
+          icon: 'fa-solid fa-users',
+          label: 'PDF_CHARACTER_SHEET.Controls.share',
+          ownership: 'OWNER',
+        },
+      ],
+    },
     position: { width: 860, height: 900 },
+    actions: { sharePage: PdfViewer._onSharePage },
   };
+
+  /** Send the page currently open to the players who ask for it. */
+  static async _onSharePage(this: PdfViewer): Promise<void> {
+    const userIds = await pickPlayers();
+    // Dismissed. Sending to the whole table would be the opposite of what
+    // closing the dialog means.
+    if (userIds === undefined) return;
+    if (userIds.length === 0) {
+      ui.notifications?.info(game.i18n.localize('PDF_CHARACTER_SHEET.Pick.sentNobody'));
+      return;
+    }
+    shareView({ url: this.url, title: this.title, page: this.page }, userIds);
+    ui.notifications?.info(
+      game.i18n.format('PDF_CHARACTER_SHEET.Pick.sent', {
+        page: this.page,
+        count: userIds.length,
+      }),
+    );
+  }
 
   #url: string;
   #page: number;

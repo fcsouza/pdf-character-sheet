@@ -19,6 +19,8 @@
 import * as pdfjs from 'pdfjs-dist';
 import { BaseDocumentSheet } from '@vttforge/core';
 import { MODULE_ID } from '../constants.js';
+import { actorPaths } from '../paths.js';
+import { browseActorPaths, chooseActorSheet } from './pickers.js';
 import { themeClass } from '../settings.js';
 
 
@@ -83,9 +85,50 @@ interface SheetActor {
 export class FillablePdfSheet extends BaseDocumentSheet('Actor') {
   static DEFAULT_OPTIONS = {
     classes: [MODULE_ID, 'fillable-pdf'],
-    window: { resizable: true },
+    window: {
+      resizable: true,
+      // Both of these were console-only before. A sheet you can open but not
+      // point at a file is not a sheet anyone can use.
+      controls: [
+        {
+          action: 'chooseSheet',
+          icon: 'fa-solid fa-file-circle-check',
+          label: 'PDF_CHARACTER_SHEET.Controls.chooseSheet',
+          ownership: 'OWNER',
+        },
+        {
+          action: 'browsePaths',
+          icon: 'fa-solid fa-list-tree',
+          label: 'PDF_CHARACTER_SHEET.Controls.browsePaths',
+          ownership: 'OWNER',
+        },
+      ],
+    },
     position: { width: 860, height: 1000 },
+    actions: {
+      chooseSheet: FillablePdfSheet._onChooseSheet,
+      browsePaths: FillablePdfSheet._onBrowsePaths,
+    },
   };
+
+  /** Pick the PDF this actor's sheet is drawn from, then redraw. */
+  static async _onChooseSheet(this: FillablePdfSheet): Promise<void> {
+    await chooseActorSheet(this.actor as never);
+    // The flag decides which file `_renderHTML` reads, and the parsed document
+    // is cached, so a new choice needs both dropped.
+    this.forgetDocument();
+    await this.render({ force: false });
+  }
+
+  /** Show the actor's data paths, so PDF fields can be named after them. */
+  static async _onBrowsePaths(this: FillablePdfSheet): Promise<void> {
+    await browseActorPaths(this.actor as never);
+  }
+
+  /** Drop the parsed PDF so the next render reads the current file. */
+  forgetDocument(): void {
+    this.#doc = undefined;
+  }
 
   #doc?: pdfjs.PDFDocumentProxy;
 
@@ -109,11 +152,7 @@ export class FillablePdfSheet extends BaseDocumentSheet('Actor') {
 
   /** The document's current values, flattened to the paths a PDF field names. */
   #flatten(): Record<string, unknown> {
-    return foundry.utils.flattenObject({
-      name: this.actor.name,
-      system: this.actor.system,
-      flags: this.actor.flags ?? {},
-    });
+    return actorPaths(this.actor);
   }
 
   /** Publish the reader's chosen palette on the window element. */
