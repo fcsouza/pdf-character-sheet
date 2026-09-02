@@ -26,9 +26,6 @@ Paste this into Foundry's **Install Module** dialog:
 https://github.com/fcsouza/pdf-character-sheet/releases/latest/download/module.json
 ```
 
-The v13 rewrite has not been released yet, so that link still serves the last
-v10 build. Until it is cut, build from source — see below.
-
 ## Using it
 
 **Add a PDF.** Create an Item of type *PDF*, set the file, and give it a short
