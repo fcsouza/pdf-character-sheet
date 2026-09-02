@@ -62,10 +62,7 @@ export function registerSocket(): void {
     if (message.type === 'setView') {
       onSetView(message);
     } else if (message.type === 'preload') {
-      // Deliberately unawaited: warming a cache must not hold up the socket.
-      void fetchPdf(message.url, cacheBudget()).catch(() => {
-        // A failed preload just means the first open pays for the download.
-      });
+      onPreload(message.url);
     }
   });
 }
@@ -77,7 +74,22 @@ export function shareView(view: Omit<SetView, 'type'>, userIds: string[] | null 
   onSetView(message);
 }
 
-/** Ask clients to warm their cache for a file. */
+/** Warm this client's cache, without letting a failure surface. */
+function onPreload(url: string): void {
+  // Deliberately unawaited and swallowed: a failed preload only means the
+  // first open pays for the download.
+  void fetchPdf(url, cacheBudget()).catch(() => {});
+}
+
+/**
+ * Ask clients to warm their cache for a file.
+ *
+ * Acts locally as well as emitting, the same way `shareView` does. Foundry
+ * does not deliver a socket message back to whoever sent it, so a GM in a
+ * one-client world calling this would otherwise see nothing happen at all —
+ * no cache, no error, no way to tell it from a bug.
+ */
 export function requestPreload(url: string, userIds: string[] | null = null): void {
   game.socket?.emit(CHANNEL, { type: 'preload', url, userIds } satisfies Message);
+  if (userIds === null || userIds.includes(game.userId ?? '')) onPreload(url);
 }
