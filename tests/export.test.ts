@@ -53,16 +53,17 @@ function mount({ isGM = true, existing = null as typeof journal } = {}): void {
       items: { filter: (fn: (i: (typeof ITEMS)[number]) => boolean) => ITEMS.filter(fn) },
       journal: { find: (fn: (e: unknown) => boolean) => (journal && fn(journal) ? journal : undefined) },
     },
-  }).restore;
-
-  // `withMockFoundry` installs game, CONFIG, Hooks, ui, foundry and CONST.
-  // Document classes are globals too, and this one is not on that list.
-  (globalThis as Record<string, unknown>).JournalEntry = {
-    create: (data: { name: string; pages: unknown[] }) => {
-      created.push(data);
-      return Promise.resolve({ id: 'j1', name: data.name });
+    globals: {
+      // Document classes live on the global scope too, and are not part of
+      // the fixed set the helper installs.
+      JournalEntry: {
+        create: (data: { name: string; pages: unknown[] }) => {
+          created.push(data);
+          return Promise.resolve({ id: 'j1', name: data.name });
+        },
+      },
     },
-  };
+  }).restore;
 }
 
 beforeEach(() => {
@@ -72,7 +73,6 @@ beforeEach(() => {
 
 afterEach(() => {
   restore();
-  (globalThis as Record<string, unknown>).JournalEntry = undefined;
   vi.resetModules();
 });
 
