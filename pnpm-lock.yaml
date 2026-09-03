@@ -19,8 +19,8 @@ importers:
         version: 5.7.284
     devDependencies:
       '@vttforge/cli':
-        specifier: ^0.5.6
-        version: 0.5.6
+        specifier: ^0.6.0
+        version: 0.6.0
       '@vttforge/testing':
         specifier: ^0.3.3
         version: 0.3.3
@@ -280,8 +280,8 @@ packages:
   '@vitest/utils@4.1.11':
     resolution: {integrity: sha512-zTCVGpyFsGWBhllOyKlTw/vnr6D9qxsfSDyfbyZmTyjHw5N/VuvzHpHoQjm2ZJzn4RJgx5w4r7V0er69CmLgPQ==}
 
-  '@vttforge/cli@0.5.6':
-    resolution: {integrity: sha512-RH43MQ4ITMEP4dWCMK32/IR+RvhC+XFVH0xnPvue21yUgEL1x2BF1P/39y7YnbkfiPJtQkBI9ZY8B3H47kDeRA==}
+  '@vttforge/cli@0.6.0':
+    resolution: {integrity: sha512-rHIyPrWbQp8BU48UKDhNlrWa1vxo8+h6DuOpNVABpmppwQliiHshV8oazkuqUmD3wMuM8aKYdfOcRwwOxUjRdQ==}
     engines: {node: '>=26.0.0'}
     hasBin: true
 
@@ -973,7 +973,7 @@ snapshots:
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.1
 
-  '@vttforge/cli@0.5.6':
+  '@vttforge/cli@0.6.0':
     dependencies:
       '@clack/prompts': 1.7.0
       archiver: 8.0.0
