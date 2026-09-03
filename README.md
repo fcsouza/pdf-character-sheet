@@ -91,6 +91,32 @@ command prints the compose mount to use instead.
 
 Built with the [VTTForge](https://vttforge.dev) SDK.
 
+### Tests
+
+```bash
+pnpm test        # Vitest, against the Foundry mock from @vttforge/testing
+pnpm typecheck
+```
+
+CI runs both on every push and pull request, plus the build and
+`vttforge audit`.
+
+## Cutting a release
+
+Run the **Cut a release** workflow from the Actions tab and pick patch, minor
+or major. It bumps `package.json` and `module.json`, commits, and pushes the
+tag. The tag starts the release workflow, which builds, zips, and attaches the
+manifest and the archive to a GitHub Release.
+
+Foundry and foundryvtt.com read the release's
+`latest/download/module.json`, so an install updates itself with no further
+step.
+
+It needs a `RELEASE_PAT` secret, a fine-grained token with Contents: write on
+this repository. A tag pushed with the workflow's own token does not start
+another workflow, so without it the tag would sit there and nothing would be
+released.
+
 ## pdf.js version
 
 Pinned to `pdfjs-dist` 5.x. 6.x is out; the bump is deliberately not taken.
