@@ -39,6 +39,21 @@ function items() {
 
 let restore: () => void;
 
+/** Rebuild the globals with the current user a GM or not. */
+function asUser({ isGM }: { isGM: boolean }): void {
+  restore?.();
+  const all = items();
+  restore = withMockFoundry({
+    game: {
+      user: { isGM },
+      items: {
+        filter: (fn: (item: (typeof all)[number]) => boolean) => all.filter(fn),
+        get: (id: string) => all.find((item) => item.id === id),
+      },
+    },
+  }).restore;
+}
+
 beforeEach(() => {
   shared.length = 0;
   preloaded.length = 0;
@@ -49,6 +64,7 @@ beforeEach(() => {
   // instead of recursing into the mock's own.
   restore = withMockFoundry({
     game: {
+      user: { isGM: true },
       items: {
         filter: (fn: (item: (typeof all)[number]) => boolean) => all.filter(fn),
         get: (id: string) => all.find((item) => item.id === id),
@@ -111,5 +127,24 @@ describe('the PDF API', () => {
       { payload: { url: 'pdfs/phb.pdf', title: 'Player Handbook', page: 10 }, userIds: null },
     ]);
     expect(preloaded).toEqual([{ url: 'pdfs/phb.pdf', userIds: ['user-1'] }]);
+  });
+
+  it('tells a player why share and preload will not work for them', async () => {
+    asUser({ isGM: false });
+    const api = await loadApi();
+
+    // Receivers drop a message a player sent, so without this the call would
+    // succeed, do nothing, and say nothing.
+    expect(() => api.share('PHB')).toThrow('Only a Gamemaster can call share()');
+    expect(() => api.preload('PHB')).toThrow('Only a Gamemaster can call preload()');
+    expect(shared).toEqual([]);
+    expect(preloaded).toEqual([]);
+  });
+
+  it('still lets a player open a PDF on their own screen', async () => {
+    asUser({ isGM: false });
+    const api = await loadApi();
+    await api.open('PHB', 1);
+    expect(rendered).toEqual([{ url: 'pdfs/phb.pdf', title: 'Player Handbook', page: 8 }]);
   });
 });

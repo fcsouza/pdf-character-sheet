@@ -41,7 +41,11 @@ export class PdfViewer extends BaseApplication() {
           action: 'sharePage',
           icon: 'fa-solid fa-users',
           label: 'PDF_CHARACTER_SHEET.Controls.share',
-          ownership: 'OWNER',
+          // `visible`, not `ownership`. Foundry reads `ownership` on a sheet,
+          // where it resolves against that sheet's document. This viewer has
+          // no document, so `ownership` was never consulted and every player
+          // saw a button whose message their peers would drop.
+          visible: () => game.user?.isGM === true,
         },
       ],
     },
@@ -51,6 +55,11 @@ export class PdfViewer extends BaseApplication() {
 
   /** Send the page currently open to the players who ask for it. */
   static async _onSharePage(this: PdfViewer): Promise<void> {
+    // The button is hidden from players, and an action is still reachable
+    // without its button. Receivers drop a non-GM message anyway; this is
+    // what stops the picker opening for someone it cannot help.
+    if (game.user?.isGM !== true) return;
+
     const userIds = await pickPlayers();
     // Dismissed. Sending to the whole table would be the opposite of what
     // closing the dialog means.
