@@ -13,14 +13,14 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@vttforge/core": "^0.11.0",
-    "pdfjs-dist": "^5.4.149",
-    "@vttforge/styles": "^0.3.1"
+    "@vttforge/core": "^0.11.3",
+    "@vttforge/styles": "^0.3.3",
+    "pdfjs-dist": "^5.4.149"
   },
   "devDependencies": {
-    "@vttforge/cli": "^0.5.0",
-    "@vttforge/testing": "^0.3.0",
-    "@vttforge/vite-plugin": "^0.4.0",
+    "@vttforge/cli": "^0.5.6",
+    "@vttforge/testing": "^0.3.3",
+    "@vttforge/vite-plugin": "^0.4.2",
     "happy-dom": "^20.0.0",
     "typescript": "^5.4.0",
     "vite": "^8.2.2",

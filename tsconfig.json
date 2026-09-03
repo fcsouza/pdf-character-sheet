@@ -13,6 +13,6 @@
     "resolveJsonModule": true,
     "allowImportingTsExtensions": false
   },
-  "include": ["scripts/**/*"],
+  "include": ["scripts/**/*", "tests/**/*", "vitest.config.mts"],
   "exclude": ["node_modules", "dist"]
 }
