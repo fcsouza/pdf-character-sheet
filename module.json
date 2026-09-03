@@ -2,7 +2,7 @@
   "id": "pdf-character-sheet",
   "title": "PDF Character Sheet",
   "description": "Form-fillable PDFs as character sheets for Foundry VTT.",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "compatibility": {
     "minimum": "13",
     "verified": "13"
