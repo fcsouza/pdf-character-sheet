@@ -1,0 +1,113 @@
+name: Cut a release
+
+# Turns cutting a version into one button. Pick the bump, and this bumps
+# package.json and module.json, commits, and pushes the tag. The tag is what
+# release.yml already watches, so the two stay one flow rather than two.
+#
+# The version lives in the tag either way: release.yml writes it into
+# package.json before it builds. Committing the bump here is so the repo
+# stops disagreeing with what was published, which it did until 2.0.1.
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Which part of the version to raise'
+        type: choice
+        required: true
+        default: patch
+        options: [patch, minor, major]
+
+permissions:
+  contents: write
+
+jobs:
+  cut:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          # The tag push has to reach the release workflow, and a push made
+          # with GITHUB_TOKEN does not trigger other workflows. Checking out
+          # with the default token is fine; the tag is pushed with it too, so
+          # see the note on the push step.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 26
+
+      - name: Refuse to cut from anywhere but the default branch
+        run: |
+          if [ "${{ github.ref_name }}" != "${{ github.event.repository.default_branch }}" ]; then
+            echo "::error::Run this from ${{ github.event.repository.default_branch }}, not ${{ github.ref_name }}."
+            exit 1
+          fi
+
+      - name: Work out the next version
+        id: next
+        env:
+          BUMP: ${{ inputs.bump }}
+        run: |
+          current=$(node -p "require('./package.json').version")
+          next=$(node -e "
+            const [major, minor, patch] = process.argv[1].split('.').map(Number);
+            const bump = process.argv[2];
+            const next = bump === 'major' ? [major + 1, 0, 0]
+              : bump === 'minor' ? [major, minor + 1, 0]
+              : [major, minor, patch + 1];
+            process.stdout.write(next.join('.'));
+          " "$current" "$BUMP")
+          echo "current=$current" >> "$GITHUB_OUTPUT"
+          echo "next=$next" >> "$GITHUB_OUTPUT"
+          echo "Cutting $current -> $next"
+
+      - name: Refuse to reuse a tag
+        env:
+          NEXT: ${{ steps.next.outputs.next }}
+        run: |
+          if git rev-parse "v$NEXT" >/dev/null 2>&1; then
+            echo "::error::v$NEXT already exists."
+            exit 1
+          fi
+
+      - name: Bump both manifests
+        env:
+          NEXT: ${{ steps.next.outputs.next }}
+        run: |
+          node -e "
+            const fs = require('node:fs');
+            for (const path of ['package.json', 'module.json']) {
+              const file = JSON.parse(fs.readFileSync(path, 'utf8'));
+              file.version = process.env.NEXT;
+              fs.writeFileSync(path, JSON.stringify(file, null, 2) + '\n');
+            }
+          "
+
+      - name: Commit and tag
+        env:
+          NEXT: ${{ steps.next.outputs.next }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git commit -am "chore(release): $NEXT"
+          git tag "v$NEXT"
+
+      # Pushed with a PAT rather than GITHUB_TOKEN on purpose: a tag pushed
+      # with the default token does not start another workflow, so release.yml
+      # would never run and the tag would sit there doing nothing. Without the
+      # secret this stops here and says so, rather than half-releasing.
+      - name: Push
+        env:
+          NEXT: ${{ steps.next.outputs.next }}
+          RELEASE_PAT: ${{ secrets.RELEASE_PAT }}
+        run: |
+          if [ -z "$RELEASE_PAT" ]; then
+            echo "::error::RELEASE_PAT is not set. A tag pushed with GITHUB_TOKEN will not trigger the release workflow."
+            echo "Create a fine-grained PAT with Contents: write on this repository and add it as the RELEASE_PAT secret."
+            exit 1
+          fi
+          git remote set-url origin "https://x-access-token:${RELEASE_PAT}@github.com/${{ github.repository }}.git"
+          git push origin HEAD:"${{ github.ref_name }}"
+          git push origin "v$NEXT"
+          echo "### Cut v$NEXT" >> "$GITHUB_STEP_SUMMARY"
+          echo "The release workflow takes it from here." >> "$GITHUB_STEP_SUMMARY"
