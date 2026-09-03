@@ -23,6 +23,8 @@ declare global {
   var ui: any;
   // biome-ignore lint/suspicious/noExplicitAny: stub declarations only
   var foundry: any;
+  // biome-ignore lint/suspicious/noExplicitAny: stub declarations only
+  var JournalEntry: any;
 }
 
 export {};
