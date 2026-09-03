@@ -11,6 +11,7 @@
  */
 import { PdfViewer } from './apps/pdf-viewer.js';
 import { PDF_TYPE } from './constants.js';
+import { type ExportResult, exportToJournal } from './export.js';
 import { requestPreload, shareView } from './socket.js';
 
 interface PdfItem {
@@ -66,6 +67,12 @@ export interface PdfApi {
   share(codeOrName: string, page?: number, userIds?: string[] | null): void;
   /** Ask clients to cache the file now rather than on first open. */
   preload(codeOrName: string, userIds?: string[] | null): void;
+  /**
+   * Copy every PDF into a journal of core-typed pages, so the library keeps
+   * working once this module is gone. Run it before uninstalling. Nothing is
+   * deleted, and running it twice replaces what the last run wrote.
+   */
+  exportToJournal(): Promise<ExportResult>;
 }
 
 export const api: PdfApi = {
@@ -105,4 +112,6 @@ export const api: PdfApi = {
     const item = requirePdf(codeOrName);
     requestPreload(item.system.url, userIds);
   },
+
+  exportToJournal,
 };

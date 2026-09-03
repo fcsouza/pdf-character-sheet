@@ -54,9 +54,11 @@
       }
     },
     "Commands": {
-      "purged": "PDF cache cleared — {size} freed.",
+      "purged": "PDF cache cleared. {size} freed.",
       "size": "PDF cache is holding {size}.",
-      "unknown": "Unknown command \"/pdf {command}\". Try purge or size."
+      "unknown": "Unknown command \"/pdf {command}\". Try purge, size or export.",
+      "exported": "Wrote {count} PDFs to the journal \"{journal}\". They keep working with this module uninstalled.",
+      "exportSkipped": "Left out, because no file was ever chosen for them: {names}."
     },
     "Themes": {
       "default": "Follow Foundry",
