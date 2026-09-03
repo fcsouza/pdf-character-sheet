@@ -1,4 +1,11 @@
 {
+  "TYPES": {
+    "Item": {
+      "pdf-character-sheet": {
+        "pdf": "PDF"
+      }
+    }
+  },
   "PDF_CHARACTER_SHEET": {
     "Item": {
       "pdf": "PDF"
