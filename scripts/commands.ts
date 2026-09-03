@@ -6,6 +6,7 @@
  * Returning false from `chatMessage` stops the message from posting.
  */
 import { purge, size } from './cache.js';
+import { exportToJournal } from './export.js';
 import { MODULE_ID } from './constants.js';
 
 /** Bytes rendered the way a person reads them. */
@@ -30,6 +31,20 @@ const COMMANDS: Record<string, () => Promise<string>> = {
   async size() {
     return game.i18n.format('PDF_CHARACTER_SHEET.Commands.size', {
       size: humanBytes(await size()),
+    });
+  },
+  async export() {
+    const result = await exportToJournal();
+    if (result.skipped.length > 0) {
+      ui.notifications?.warn(
+        game.i18n.format('PDF_CHARACTER_SHEET.Commands.exportSkipped', {
+          names: result.skipped.join(', '),
+        }),
+      );
+    }
+    return game.i18n.format('PDF_CHARACTER_SHEET.Commands.exported', {
+      count: result.written,
+      journal: result.journal.name,
     });
   },
 };

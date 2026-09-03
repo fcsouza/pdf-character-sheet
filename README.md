@@ -61,6 +61,7 @@ PDF get the text without a link, rather than a link they cannot follow.
 |---|---|
 | `/pdf size` | How much the local PDF cache is holding |
 | `/pdf purge` | Empty it |
+| `/pdf export` | Copy every PDF into a journal that survives uninstalling this module |
 
 ## API
 
@@ -72,10 +73,37 @@ find(codeOrName)                       // one, by code or by name
 open(codeOrName, page?)                // open it locally
 share(codeOrName, page?, userIds?)     // open it on other clients; null means everyone
 preload(codeOrName, userIds?)          // warm the cache before a session
+exportToJournal()                      // copy the library into core journal pages
 ```
 
-`open` and `share` take the page as printed in the book — the item's offset is
+`open` and `share` take the page as printed in the book. The item's offset is
 applied for you.
+
+`share` and `preload` are Gamemaster-only, and say so if a player calls them.
+They reach other people's clients, and the receiving end drops a message that
+did not come from a GM.
+
+## Before you uninstall
+
+PDF items are a document subtype this module owns. Remove the module and
+Foundry no longer knows the type: the items are not deleted and nothing under
+them is destroyed, but no sheet opens and they sit in the sidebar as an
+unavailable type until the module comes back.
+
+Run this first, while the module is still installed:
+
+```
+/pdf export
+```
+
+It writes every PDF to a journal named PDFs, one page each, using Foundry's own
+`pdf` page type. Those pages keep working with this module gone, on any system.
+The code and the page offset are kept in flags on each page.
+
+Nothing is deleted. Your items stay where they are, so you can read the journal,
+agree it came out right, and only then decide what to do with them. Running it
+again replaces the pages it wrote last time rather than adding a second copy,
+and leaves any page you added by hand alone.
 
 ## Building from source
 
