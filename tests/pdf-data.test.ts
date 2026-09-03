@@ -12,7 +12,7 @@
  * because the mistake was in the declaration.
  */
 import { withMockFoundry } from '@vttforge/testing/vitest';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 /** A field constructor that records what it was given. */
 class RecordingField {
@@ -37,6 +37,7 @@ let restore: (() => void) | undefined;
 afterEach(() => {
   restore?.();
   restore = undefined;
+  vi.resetModules();
 });
 
 /** Load the schema against a Foundry whose field classes only record. */
