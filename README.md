@@ -95,7 +95,7 @@ Built with the [VTTForge](https://vttforge.dev) SDK.
 
 ```bash
 pnpm test        # Vitest, against the Foundry mock from @vttforge/testing
-pnpm typecheck
+pnpm typecheck   # covers the tests too
 ```
 
 CI runs both on every push and pull request, plus the build and

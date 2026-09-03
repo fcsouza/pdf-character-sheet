@@ -9,24 +9,24 @@ importers:
   .:
     dependencies:
       '@vttforge/core':
-        specifier: ^0.11.0
-        version: 0.11.0
+        specifier: ^0.11.3
+        version: 0.11.3
       '@vttforge/styles':
-        specifier: ^0.3.1
-        version: 0.3.1
+        specifier: ^0.3.3
+        version: 0.3.3
       pdfjs-dist:
         specifier: ^5.4.149
         version: 5.7.284
     devDependencies:
       '@vttforge/cli':
-        specifier: ^0.5.0
-        version: 0.5.0
+        specifier: ^0.5.6
+        version: 0.5.6
       '@vttforge/testing':
-        specifier: ^0.3.0
-        version: 0.3.0
+        specifier: ^0.3.3
+        version: 0.3.3
       '@vttforge/vite-plugin':
-        specifier: ^0.4.0
-        version: 0.4.0(vite@8.2.2(@types/node@26.4.1))
+        specifier: ^0.4.2
+        version: 0.4.2(vite@8.2.2(@types/node@26.4.1))
       happy-dom:
         specifier: ^20.0.0
         version: 20.12.1
@@ -280,23 +280,26 @@ packages:
   '@vitest/utils@4.1.11':
     resolution: {integrity: sha512-zTCVGpyFsGWBhllOyKlTw/vnr6D9qxsfSDyfbyZmTyjHw5N/VuvzHpHoQjm2ZJzn4RJgx5w4r7V0er69CmLgPQ==}
 
-  '@vttforge/cli@0.5.0':
-    resolution: {integrity: sha512-7F4KZRHK4igWOvZ0KA2hvPMRFhMuzyTLFoDpDqBMeo6J49tdmIIcmvRTVlATvr7RV7DWDq00ED92Q6i0CV3hBQ==}
+  '@vttforge/cli@0.5.6':
+    resolution: {integrity: sha512-RH43MQ4ITMEP4dWCMK32/IR+RvhC+XFVH0xnPvue21yUgEL1x2BF1P/39y7YnbkfiPJtQkBI9ZY8B3H47kDeRA==}
     engines: {node: '>=26.0.0'}
     hasBin: true
 
-  '@vttforge/core@0.11.0':
-    resolution: {integrity: sha512-nnCiItSXA6SjFxSvqlkVclpphBOSpPcczx7sz1zpQaAWpd3YaJ/KVrjvX2n66AbBp6GbHeGBodqGVHKwYmIGsg==}
+  '@vttforge/core@0.11.3':
+    resolution: {integrity: sha512-j3GrAW6NDPdleLpwnGBc2jQ11eFkvDdcB9wJ9/WlxS29KtgRPB5mFFAri0x4S/WMynax0DBTMr2HjG5BZinzxQ==}
 
-  '@vttforge/styles@0.3.1':
-    resolution: {integrity: sha512-TFAwtFHHcLW2DcUC2AYNuwccIhN+ZQqWae4N9b4MWCQKr9+Xg9bM8USJYoUc3p1zp1NrPalGPq3G/QE2+B4ZqA==}
+  '@vttforge/styles@0.3.3':
+    resolution: {integrity: sha512-MBqhhXPNn78ZPZFP+Hmk324GksQ81toMkZUu+da0crS7iI/f8qHxwf3z416vma5cxs0urWCqK5jHWwsZ6zsFXg==}
 
-  '@vttforge/testing@0.3.0':
-    resolution: {integrity: sha512-BpSizh1dJh0A4Z0HAvdwF0q1UumpZ1d16KM+Pwo0xWX/gLNR+eKVa8c3TA8axn3yHG+l8ydcgSycehyE42wEXg==}
+  '@vttforge/testing@0.3.3':
+    resolution: {integrity: sha512-HHXdnCEEByVRuPrlEpctMmJDrNSBKjAzVipkhBuNw5hhtBOtoW9AbY5j4EhUaZk1CqHuWi9/BlH95nwBEieaeg==}
     engines: {node: '>=22.0.0'}
 
-  '@vttforge/vite-plugin@0.4.0':
-    resolution: {integrity: sha512-wtZpIHjxx2YMiDiisS31b5ZH0XV/RE0ZTLc008PMEkUBoulxMQss5x7L3W8X64Ug0QAO/NGotBrHwsH2GcPziw==}
+  '@vttforge/types@0.2.0':
+    resolution: {integrity: sha512-dpZ4LHH1+Ipv8QHISccHJJdxvP8Fqo8XNgHh6MQCAGcfSd1bDgl0QLaczYkGgb55E0M82M87cZiA+l5jgJJ+9g==}
+
+  '@vttforge/vite-plugin@0.4.2':
+    resolution: {integrity: sha512-8WpdcU7cQSyv65+k6aHwozWz1kEDIQj8uOM4MU/g1W6HfSUuhEoK8TULzrTpzlQcoPnnRp5Z592xRQIlhLt6yA==}
     engines: {node: '>=26.0.0'}
     peerDependencies:
       vite: ^8.2.2
@@ -970,7 +973,7 @@ snapshots:
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.1
 
-  '@vttforge/cli@0.5.0':
+  '@vttforge/cli@0.5.6':
     dependencies:
       '@clack/prompts': 1.7.0
       archiver: 8.0.0
@@ -980,13 +983,17 @@ snapshots:
       - bare-buffer
       - react-native-b4a
 
-  '@vttforge/core@0.11.0': {}
+  '@vttforge/core@0.11.3':
+    dependencies:
+      '@vttforge/types': 0.2.0
 
-  '@vttforge/styles@0.3.1': {}
+  '@vttforge/styles@0.3.3': {}
 
-  '@vttforge/testing@0.3.0': {}
+  '@vttforge/testing@0.3.3': {}
 
-  '@vttforge/vite-plugin@0.4.0(vite@8.2.2(@types/node@26.4.1))':
+  '@vttforge/types@0.2.0': {}
+
+  '@vttforge/vite-plugin@0.4.2(vite@8.2.2(@types/node@26.4.1))':
     dependencies:
       vite: 8.2.2(@types/node@26.4.1)
 
