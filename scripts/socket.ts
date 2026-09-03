@@ -5,6 +5,21 @@
  * viewers to a page, `preload` warms a client's cache before a session so the
  * first open is not a download.
  *
+ * Both take over someone else's screen or spend their bandwidth, so both are
+ * GM-only, and the check is on the receiving end.
+ *
+ * **Who sent it.** Foundry's server appends the sender's user id to every
+ * message it relays on a module channel, as a second argument after the
+ * payload. That id comes from the authenticated session, not from anything
+ * the sender wrote, so it is the one part of an incoming message worth
+ * trusting. A sender id inside the payload would prove nothing: whoever
+ * built the payload chose it.
+ *
+ * **Who receives it.** The server also routes: pass `recipients` alongside the
+ * payload and only those users' clients are sent it. Filtering on arrival
+ * would work too, but it means every client in the world receives a message
+ * addressed to one player.
+ *
  * v13 removed `ui.windows`; open applications live in
  * `foundry.applications.instances` now, keyed by id.
  */
@@ -27,10 +42,7 @@ interface Preload {
   url: string;
 }
 
-type Message = (SetView | Preload) & {
-  /** Who should act on it. `null` means everyone. */
-  userIds: string[] | null;
-};
+type Message = SetView | Preload;
 
 /** Every open viewer already showing this file. */
 function openViewersFor(url: string): PdfViewer[] {
@@ -52,12 +64,21 @@ function onSetView(message: SetView): void {
   });
 }
 
+/**
+ * Is this a message we are willing to act on?
+ *
+ * Fails closed. An id the server did not send, or one naming a user who is
+ * gone or is not a GM, is dropped without a notification: a player should not
+ * learn anything from a message that was not meant to reach them.
+ */
+function senderMayCommand(senderId: unknown): boolean {
+  if (typeof senderId !== 'string' || senderId === '') return false;
+  return game.users?.get(senderId)?.isGM === true;
+}
+
 export function registerSocket(): void {
-  game.socket?.on(CHANNEL, (message: Message) => {
-    // A message for named users is ignored by everyone else. The GM's own
-    // client receives its own broadcast too, which is why `setView` has to be
-    // safe to apply to a viewer that is already on that page.
-    if (message.userIds !== null && !message.userIds.includes(game.userId ?? '')) return;
+  game.socket?.on(CHANNEL, (message: Message, senderId?: string) => {
+    if (!senderMayCommand(senderId)) return;
 
     if (message.type === 'setView') {
       onSetView(message);
@@ -67,11 +88,28 @@ export function registerSocket(): void {
   });
 }
 
+/**
+ * Emit to named users, or broadcast when `userIds` is null.
+ *
+ * The server excludes the sender from a broadcast and does not exclude them
+ * from a routed send, so `recipients` is stripped of our own id and the local
+ * call below is the single path that acts on this client. Without that, a GM
+ * who names themselves opens the page twice.
+ */
+function emit(message: Message, userIds: string[] | null): void {
+  if (userIds === null) {
+    game.socket?.emit(CHANNEL, message);
+    return;
+  }
+  const others = userIds.filter((id) => id !== game.userId);
+  if (others.length > 0) game.socket?.emit(CHANNEL, message, { recipients: others });
+}
+
 /** Send everyone (or the named users) to a page. */
 export function shareView(view: Omit<SetView, 'type'>, userIds: string[] | null = null): void {
-  const message: Message = { type: 'setView', ...view, userIds };
-  game.socket?.emit(CHANNEL, message);
-  onSetView(message);
+  const message: SetView = { type: 'setView', ...view };
+  emit(message, userIds);
+  if (userIds === null || userIds.includes(game.userId ?? '')) onSetView(message);
 }
 
 /** Warm this client's cache, without letting a failure surface. */
@@ -85,11 +123,11 @@ function onPreload(url: string): void {
  * Ask clients to warm their cache for a file.
  *
  * Acts locally as well as emitting, the same way `shareView` does. Foundry
- * does not deliver a socket message back to whoever sent it, so a GM in a
- * one-client world calling this would otherwise see nothing happen at all —
- * no cache, no error, no way to tell it from a bug.
+ * does not deliver a socket message back to whoever sent it. A GM alone in a
+ * world would otherwise see nothing happen at all: no cache, no error, and no
+ * way to tell that apart from a bug.
  */
 export function requestPreload(url: string, userIds: string[] | null = null): void {
-  game.socket?.emit(CHANNEL, { type: 'preload', url, userIds } satisfies Message);
+  emit({ type: 'preload', url }, userIds);
   if (userIds === null || userIds.includes(game.userId ?? '')) onPreload(url);
 }

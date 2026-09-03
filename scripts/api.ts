@@ -20,6 +20,19 @@ interface PdfItem {
 }
 
 /**
+ * Refuse a call that would reach across to other people's clients.
+ *
+ * Both `share` and `preload` are dropped on arrival unless a GM sent them, so
+ * a player calling either would see nothing happen and have nothing to read.
+ * Saying so here turns silence into a message.
+ */
+function requireGm(method: string): void {
+  if (game.user?.isGM !== true) {
+    throw new Error(`Only a Gamemaster can call ${method}().`);
+  }
+}
+
+/**
  * Find the item, and refuse the ones that have no file yet.
  *
  * A PDF item is creatable before a file is chosen, because Foundry makes the
@@ -79,6 +92,7 @@ export const api: PdfApi = {
   },
 
   share(codeOrName, page = 1, userIds = null) {
+    requireGm('share');
     const item = requirePdf(codeOrName);
     shareView(
       { url: item.system.url, title: item.name, page: page + item.system.offset },
@@ -87,6 +101,7 @@ export const api: PdfApi = {
   },
 
   preload(codeOrName, userIds = null) {
+    requireGm('preload');
     const item = requirePdf(codeOrName);
     requestPreload(item.system.url, userIds);
   },
