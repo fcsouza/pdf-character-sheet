@@ -24,13 +24,25 @@ jobs:
   cut:
     runs-on: ubuntu-latest
     steps:
+      - name: Check the release token is configured
+        env:
+          RELEASE_PAT: ${{ secrets.RELEASE_PAT }}
+        run: |
+          if [ -z "$RELEASE_PAT" ]; then
+            echo "::error::RELEASE_PAT is not set. A tag pushed with GITHUB_TOKEN does not start the release workflow."
+            echo "Create a fine-grained PAT with Contents: write on this repository and add it as the RELEASE_PAT secret."
+            exit 1
+          fi
+
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          # The tag push has to reach the release workflow, and a push made
-          # with GITHUB_TOKEN does not trigger other workflows. Checking out
-          # with the default token is fine; the tag is pushed with it too, so
-          # see the note on the push step.
           fetch-depth: 0
+          # The token has to be given here, not swapped in at push time.
+          # checkout writes an `http.https://github.com/.extraheader` into the
+          # local git config, and that header wins over any credentials in the
+          # remote URL. The first attempt set the URL and pushed anyway as
+          # GITHUB_TOKEN, which lands the tag and starts nothing.
+          token: ${{ secrets.RELEASE_PAT }}
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
@@ -92,21 +104,13 @@ jobs:
           git commit -am "chore(release): $NEXT"
           git tag "v$NEXT"
 
-      # Pushed with a PAT rather than GITHUB_TOKEN on purpose: a tag pushed
-      # with the default token does not start another workflow, so release.yml
-      # would never run and the tag would sit there doing nothing. Without the
-      # secret this stops here and says so, rather than half-releasing.
+      # Pushes as the PAT, because checkout was given it. A tag pushed with
+      # the workflow's own token does not start another workflow, so
+      # release.yml would never run and the tag would sit there doing nothing.
       - name: Push
         env:
           NEXT: ${{ steps.next.outputs.next }}
-          RELEASE_PAT: ${{ secrets.RELEASE_PAT }}
         run: |
-          if [ -z "$RELEASE_PAT" ]; then
-            echo "::error::RELEASE_PAT is not set. A tag pushed with GITHUB_TOKEN will not trigger the release workflow."
-            echo "Create a fine-grained PAT with Contents: write on this repository and add it as the RELEASE_PAT secret."
-            exit 1
-          fi
-          git remote set-url origin "https://x-access-token:${RELEASE_PAT}@github.com/${{ github.repository }}.git"
           git push origin HEAD:"${{ github.ref_name }}"
           git push origin "v$NEXT"
           echo "### Cut v$NEXT" >> "$GITHUB_STEP_SUMMARY"
