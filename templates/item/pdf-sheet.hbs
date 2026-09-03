@@ -1,4 +1,10 @@
-<form class="pdf-character-sheet-form">
+{{!--
+  No <form> here. `BaseItemSheet` sets `tag: 'form'`, so the application
+  element already is one. A nested form owns the fields inside it, and the
+  submit reads the outer one, which is then empty: everything typed here was
+  silently dropped on close.
+--}}
+<div class="pdf-character-sheet-form">
   <div class="form-group">
     <label for="pdf-url">{{localize "PDF_CHARACTER_SHEET.Field.url"}}</label>
     <file-picker id="pdf-url" name="system.url" type="text" value="{{system.url}}"></file-picker>
@@ -31,4 +37,4 @@
   <button type="button" data-action="openPdf">
     <i class="fa-solid fa-file-pdf"></i> {{localize "PDF_CHARACTER_SHEET.Sheet.pdf.title"}}
   </button>
-</form>
+</div>
