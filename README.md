@@ -3,7 +3,7 @@
 Use form-fillable PDFs as character sheets in Foundry VTT. Point an actor at a
 PDF, and the fields you filled in are the sheet.
 
-Requires **Foundry v13 or newer**.
+Requires **Foundry v14 or newer**.
 
 [![GitHub release](https://img.shields.io/github/v/release/fcsouza/pdf-character-sheet)](https://github.com/fcsouza/pdf-character-sheet/releases)
 [![Issues](https://img.shields.io/github/issues/fcsouza/pdf-character-sheet)](https://github.com/fcsouza/pdf-character-sheet/issues)

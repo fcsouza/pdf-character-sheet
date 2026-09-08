@@ -7,7 +7,7 @@
  * So it stops at the top and stores the whole model as one leaf:
  *
  * ```js
- * flattenObject({ system: actor.system })  // → { system: CharacterData }
+ * foundry.utils.flattenObject({ system: actor.system })  // → { system: CharacterData }
  * ```
  *
  * Nothing throws. A PDF field named `system.health.value` simply looks itself
