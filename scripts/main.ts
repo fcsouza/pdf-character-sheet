@@ -27,18 +27,20 @@ import { registerSocket } from './socket.js';
  * sheet open. Getting there the first time starts in the directory, which is
  * why this exists too.
  *
- * v13 names the hook after the document — `getActorContextOptions` — not the
- * v12 `getActorDirectoryEntryContext`.
+ * Since v13 the hook is named after the document, `getActorContextOptions`,
+ * not the v12 `getActorDirectoryEntryContext`.
  */
 function registerActorContextMenu(): void {
   Hooks.on(
     'getActorContextOptions',
     (_directory: unknown, options: Array<Record<string, unknown>>) => {
+      // v14 shape: `label` / `visible` / `onClick`. The v13 `name` /
+      // `condition` / `callback` keys still work but warn until v16.
       options.push({
-        name: 'PDF_CHARACTER_SHEET.Controls.chooseSheet',
-        icon: '<i class="fa-solid fa-file-circle-check"></i>',
-        condition: () => Boolean(game.user?.isGM),
-        callback: (li: HTMLElement) => {
+        label: 'PDF_CHARACTER_SHEET.Controls.chooseSheet',
+        icon: 'fa-solid fa-file-circle-check',
+        visible: () => Boolean(game.user?.isGM),
+        onClick: (_event: Event, li: HTMLElement) => {
           const actor = game.actors?.get(li.dataset.entryId ?? '');
           if (actor) void chooseActorSheet(actor as never);
         },
