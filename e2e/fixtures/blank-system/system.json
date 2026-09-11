@@ -1,0 +1,18 @@
+{
+  "id": "blank",
+  "type": "system",
+  "title": "Blank",
+  "description": "An empty system. The world needs one; this module does not care which.",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
+  "authors": [],
+  "grid": {
+    "type": 1,
+    "distance": 5,
+    "units": "ft",
+    "diagonals": 0
+  }
+}

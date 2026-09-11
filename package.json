@@ -10,7 +10,10 @@
     "build": "vttforge build",
     "dev": "vttforge dev",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:e2e": "playwright test -c e2e/playwright.config.mjs",
+    "e2e:up": "node -e \"import('./e2e/scripts/foundry.mjs').then(m => m.start()).then(r => console.log(r.baseUrl))\"",
+    "e2e:down": "node -e \"import('./e2e/scripts/foundry.mjs').then(m => m.stop())\""
   },
   "dependencies": {
     "@vttforge/core": "^0.14.0",
@@ -18,6 +21,7 @@
     "pdfjs-dist": "^5.4.149"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@vttforge/cli": "^0.9.0",
     "@vttforge/testing": "^0.5.0",
     "@vttforge/vite-plugin": "^0.5.0",
