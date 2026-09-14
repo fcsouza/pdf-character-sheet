@@ -1,6 +1,6 @@
 {
   "name": "pdf-character-sheet",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "private": true,
   "description": "Form-fillable PDFs as character sheets for Foundry VTT",
   "type": "module",
