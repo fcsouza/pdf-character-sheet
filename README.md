@@ -3,6 +3,7 @@
 [![GitHub release](https://img.shields.io/github/v/release/fcsouza/pdf-character-sheet)](https://github.com/fcsouza/pdf-character-sheet/releases)
 [![Issues](https://img.shields.io/github/issues/fcsouza/pdf-character-sheet)](https://github.com/fcsouza/pdf-character-sheet/issues)
 [![License](https://img.shields.io/github/license/fcsouza/pdf-character-sheet)](LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/fcsouza/pdf-character-sheet/total)](https://github.com/fcsouza/pdf-character-sheet/releases)
 
 Play with the character sheet your game came with.
 
