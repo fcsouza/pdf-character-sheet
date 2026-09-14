@@ -42,17 +42,7 @@ let restore: () => void;
 /** Rebuild the globals with the current user a GM or not. */
 function asUser({ isGM }: { isGM: boolean }): void {
   restore?.();
-  const all = items();
-  restore = withMockFoundry({
-    game: {
-      user: { isGM },
-      // An array plus `get`: the code under test walks the collection, and a
-      // stub with only `filter` is not something you can walk.
-      items: Object.assign(all, {
-        get: (id: string) => all.find((item) => item.id === id),
-      }),
-    },
-  }).restore;
+  restore = withMockFoundry({ user: { isGM }, items: items() }).restore;
 }
 
 beforeEach(() => {

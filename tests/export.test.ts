@@ -48,12 +48,9 @@ function mount({ isGM = true, existing = null as typeof journal } = {}): void {
   restore?.();
   journal = existing;
   restore = withMockFoundry({
-    game: {
-      user: { isGM },
-      // An array, because the code under test walks it.
-      items: ITEMS,
-      journal: { find: (fn: (e: unknown) => boolean) => (journal && fn(journal) ? journal : undefined) },
-    },
+    user: { isGM },
+    items: ITEMS,
+    journal: journal ? [journal] : [],
     globals: {
       // Document classes live on the global scope too, and are not part of
       // the fixed set the helper installs.
