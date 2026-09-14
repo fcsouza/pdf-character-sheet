@@ -25,8 +25,8 @@ importers:
         specifier: ^0.18.4
         version: 0.18.4
       '@vttforge/testing':
-        specifier: ^0.14.0
-        version: 0.14.0
+        specifier: ^0.14.1
+        version: 0.14.1
       '@vttforge/vite-plugin':
         specifier: ^0.6.0
         version: 0.6.0(rolldown@1.2.6)(vite@8.2.2(@types/node@26.4.1))
@@ -492,8 +492,8 @@ packages:
   '@vttforge/styles@0.5.0':
     resolution: {integrity: sha512-k4TeDhd/KfjtxO4UGC44VoH8x5w9mi2d/cHMKVD2HvnJ06YKQzYP3TNl6HO2dvXj/3ODZecbJaK7Ll1OgdyX9A==}
 
-  '@vttforge/testing@0.14.0':
-    resolution: {integrity: sha512-q/fSJVaxA16EPIziaidIpf/76a9/tOetz8RkNzSnCpcW8iY5OY5SMJwqir9p+bpk3iSQyV3yce0cREk+Emv96g==}
+  '@vttforge/testing@0.14.1':
+    resolution: {integrity: sha512-UvceTdft6JJ+RQwZCzE9h4sPgdKB89cdTEgDNFe/wZtmb9PYxXu6gShTPe3TK3mOXO9q8KNHpoZGLey5xkGhRA==}
     engines: {node: '>=22.0.0'}
 
   '@vttforge/types@0.11.0':
@@ -1461,7 +1461,7 @@ snapshots:
 
   '@vttforge/styles@0.5.0': {}
 
-  '@vttforge/testing@0.14.0':
+  '@vttforge/testing@0.14.1':
     dependencies:
       '@vttforge/types': 0.11.0
 

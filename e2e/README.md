@@ -12,11 +12,13 @@ licensed Foundry: `FOUNDRY_LICENSE_KEY`, `FOUNDRY_USERNAME` and
 `FOUNDRY_PASSWORD`. The run stops with a message naming the ones that are
 missing.
 
-`scripts/foundry.mjs` boots the container, signs the licence over HTTP,
-installs the blank system under `fixtures/` and the built module, writes a
-world on them, and restarts into it. The browser only has to join. Foundry's
-data lives in a named Docker volume, so the licensed download survives
-between runs; the world and the config are rewritten every time.
+`scripts/foundry.mjs` names the packages and hands them to
+`@vttforge/testing/container`, the SDK's own harness. That is what boots the
+container, signs the licence over HTTP, installs the blank system under
+`fixtures/` and the built module, writes a world on them, and restarts into it.
+The browser only has to join. Foundry's data lives in a named Docker volume, so
+the licensed download survives between runs; the world and the config are
+rewritten every time.
 
 The world runs on a system that contributes nothing. This module attaches to
 `base` Actors and files its own Item sub-type under `pdf-character-sheet.pdf`,
