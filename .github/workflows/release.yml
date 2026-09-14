@@ -91,3 +91,48 @@ jobs:
             ```
             https://github.com/${{ github.repository }}/releases/latest/download/module.json
             ```
+
+      # foundryvtt.com keeps its own list of versions. A version with no entry
+      # there cannot be installed from the site and offers nobody an update.
+      # That list sat four versions behind, because the form is filled by hand.
+      #
+      # Last, because the site fetches the manifest to validate the entry, and
+      # that file is a release asset: before the step above it is a 404.
+      #
+      # The manifest URL names this tag rather than `latest`. An entry describes
+      # one version, and a moving URL would make every old entry install the
+      # newest build. Compatibility comes out of the manifest that was just
+      # built, so the site and the package cannot drift apart.
+      - name: Register the version on foundryvtt.com
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          REPO: ${{ github.repository }}
+          PKG_ID: 'pdf-character-sheet'
+          TOKEN: ${{ secrets.FOUNDRY_RELEASE_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::error::FOUNDRY_RELEASE_TOKEN is not set. Take the Package Release Token from the package edit page and run: gh secret set FOUNDRY_RELEASE_TOKEN"
+            exit 1
+          fi
+          payload="$(jq -n \
+            --arg id "$PKG_ID" \
+            --arg version "$VERSION" \
+            --arg manifest "https://github.com/$REPO/releases/download/v$VERSION/module.json" \
+            --arg notes "https://github.com/$REPO/releases/tag/v$VERSION" \
+            --arg minimum "$(jq -r '.compatibility.minimum' dist/module.json)" \
+            --arg verified "$(jq -r '.compatibility.verified' dist/module.json)" \
+            '{id: $id, release: {version: $version, manifest: $manifest, notes: $notes, compatibility: {minimum: $minimum, verified: $verified}}}')"
+          # The answer is printed before it is judged. A refusal explains itself
+          # in the body, and a step that shows only the status code hides why.
+          answer="$(mktemp)"
+          code="$(curl -sS -o "$answer" -w '%{http_code}' \
+            -X POST 'https://foundryvtt.com/_api/packages/release_version/' \
+            -H 'Content-Type: application/json' \
+            -H "Authorization: $TOKEN" \
+            --data-binary "$payload")"
+          cat "$answer"
+          echo
+          if [ "$code" != "200" ]; then
+            echo "::error::foundryvtt.com answered $code"
+            exit 1
+          fi
