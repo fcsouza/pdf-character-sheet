@@ -1,14 +1,14 @@
 /**
  * Module settings, through the SDK's typed wrapper.
  *
- * `SystemConfig` refuses a `get` for a key that was never registered, which
+ * `PackageConfig` refuses a `get` for a key that was never registered, which
  * turns a typo into an error at the call site instead of `undefined` leaking
  * into a calculation.
  */
-import { SystemConfig } from '@vttforge/core';
+import { PackageConfig } from '@vttforge/core';
 import { MODULE_ID } from './constants.js';
 
-export const settings = new SystemConfig(MODULE_ID);
+export const settings = new PackageConfig(MODULE_ID);
 
 /** Cache budget in megabytes, as shown in the settings form. */
 const DEFAULT_CACHE_MB = 256;
