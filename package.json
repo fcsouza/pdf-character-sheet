@@ -16,14 +16,14 @@
     "e2e:down": "node -e \"import('./e2e/scripts/foundry.mjs').then(m => m.stop())\""
   },
   "dependencies": {
-    "@vttforge/core": "^0.20.3",
+    "@vttforge/core": "^0.20.6",
     "@vttforge/styles": "^0.5.0",
     "pdfjs-dist": "^5.4.149"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
     "@vttforge/cli": "^0.18.4",
-    "@vttforge/testing": "^0.12.0",
+    "@vttforge/testing": "^0.13.0",
     "@vttforge/vite-plugin": "^0.6.0",
     "happy-dom": "^20.0.0",
     "typescript": "^5.4.0",

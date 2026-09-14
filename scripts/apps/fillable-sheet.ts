@@ -17,7 +17,7 @@
  * and lets events bubble.
  */
 import * as pdfjs from 'pdfjs-dist';
-import { BaseDocumentSheet } from '@vttforge/core';
+import { BaseDocumentSheet, type DocumentMembers } from '@vttforge/core';
 import { MODULE_ID } from '../constants.js';
 import { actorPaths } from '../paths.js';
 import { browseActorPaths, chooseActorSheet } from './pickers.js';
@@ -70,18 +70,6 @@ function resolveFieldPath(fieldName: string): string | undefined {
   return key ? `flags.${MODULE_ID}.formData.${key}` : undefined;
 }
 
-/**
- * The actor this sheet renders. Typed structurally: the Foundry runtime is
- * `@vttforge/types`' job, and this only needs four things from it.
- */
-interface SheetActor {
-  name: string;
-  system: object;
-  flags?: object;
-  getFlag(scope: string, key: string): unknown;
-  update(delta: object): Promise<unknown>;
-}
-
 export class FillablePdfSheet extends BaseDocumentSheet('Actor') {
   static DEFAULT_OPTIONS = {
     classes: [MODULE_ID, 'fillable-pdf'],
@@ -113,7 +101,7 @@ export class FillablePdfSheet extends BaseDocumentSheet('Actor') {
 
   /** Pick the PDF this actor's sheet is drawn from, then redraw. */
   static async _onChooseSheet(this: FillablePdfSheet): Promise<void> {
-    await chooseActorSheet(this.actor as never);
+    await chooseActorSheet(this.actor);
     // The flag decides which file `_renderHTML` reads, and the parsed document
     // is cached, so a new choice needs both dropped.
     this.forgetDocument();
@@ -122,7 +110,7 @@ export class FillablePdfSheet extends BaseDocumentSheet('Actor') {
 
   /** Show the actor's data paths, so PDF fields can be named after them. */
   static async _onBrowsePaths(this: FillablePdfSheet): Promise<void> {
-    await browseActorPaths(this.actor as never);
+    await browseActorPaths(this.actor);
   }
 
   /** Drop the parsed PDF so the next render reads the current file. */
@@ -133,8 +121,8 @@ export class FillablePdfSheet extends BaseDocumentSheet('Actor') {
   #doc?: pdfjs.PDFDocumentProxy;
 
   /** ActorSheetV2 already exposes `this.document`; this just names it. */
-  get actor(): SheetActor {
-    return this.document as SheetActor;
+  get actor(): DocumentMembers {
+    return this.document;
   }
 
   /**

@@ -9,24 +9,17 @@
  * and the jQuery pass disappears.
  */
 import type { EnricherRegistration } from '@vttforge/core';
-import { PDF_TYPE } from './constants.js';
+import { isPdfItem, type PdfItem } from './data/pdf-data.js';
 import { PdfViewer } from './apps/pdf-viewer.js';
 
 /** `@PDF[reference]{display text}` */
 const PATTERN = /@PDF\[(.+?)\]\{(.+?)\}/g;
 
-interface PdfItemLike {
-  name: string;
-  system: { url: string; code: string };
-  testUserPermission?: (user: unknown, level: string) => boolean;
-}
-
 /** Find a PDF item by its name or its shorthand code. */
-function findPdf(reference: string): PdfItemLike | undefined {
-  const items = game.items?.filter(
-    (item: { type: string }) => item.type === PDF_TYPE,
-  ) as PdfItemLike[] | undefined;
-  return items?.find((item) => item.name === reference || item.system.code === reference);
+function findPdf(reference: string): PdfItem | undefined {
+  return [...game.items]
+    .filter(isPdfItem)
+    .find((item) => item.name === reference || item.system.code === reference);
 }
 
 /** Page number out of `page=12`, or 1 when absent or malformed. */

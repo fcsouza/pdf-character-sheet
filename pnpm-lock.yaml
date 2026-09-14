@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@vttforge/core':
-        specifier: ^0.20.3
-        version: 0.20.3
+        specifier: ^0.20.6
+        version: 0.20.6
       '@vttforge/styles':
         specifier: ^0.5.0
         version: 0.5.0
@@ -25,8 +25,8 @@ importers:
         specifier: ^0.18.4
         version: 0.18.4
       '@vttforge/testing':
-        specifier: ^0.12.0
-        version: 0.12.0
+        specifier: ^0.13.0
+        version: 0.13.0
       '@vttforge/vite-plugin':
         specifier: ^0.6.0
         version: 0.6.0(rolldown@1.2.6)(vite@8.2.2(@types/node@26.4.1))
@@ -486,18 +486,21 @@ packages:
     engines: {node: '>=26.0.0'}
     hasBin: true
 
-  '@vttforge/core@0.20.3':
-    resolution: {integrity: sha512-0djj2pBB8ActApWxkxeuYwq6WgnohbjMWWEwqGTchNHyjpncMd5LP+McoiajduDqst6+ktjykwmRC71wv+0eYg==}
+  '@vttforge/core@0.20.6':
+    resolution: {integrity: sha512-oqJmZlZD4duvhwDSrQ1sEcN6Xc2XEbvjuF8JrnLkJYaUbgLo7cyNUnpIABoXFG7LM12MbEy+jRskLGP+vpXF9w==}
 
   '@vttforge/styles@0.5.0':
     resolution: {integrity: sha512-k4TeDhd/KfjtxO4UGC44VoH8x5w9mi2d/cHMKVD2HvnJ06YKQzYP3TNl6HO2dvXj/3ODZecbJaK7Ll1OgdyX9A==}
 
-  '@vttforge/testing@0.12.0':
-    resolution: {integrity: sha512-lwIvHO2yeiY84U4/bWmaW9eFTb/1PLpnLJyy1065ZdpTXlhGkldXoM4ZJw8ZqLhwr5PG+O4g6qO0pYmMXkJtgw==}
+  '@vttforge/testing@0.13.0':
+    resolution: {integrity: sha512-MR4FhQt7vhwIeaUv2IyxKSS/oaeXXy5qOZmKPNSwyGjtWaO+93m83kAsMLawrUwankvvVGFIK9Y+MKXfPht2Xw==}
     engines: {node: '>=22.0.0'}
 
-  '@vttforge/types@0.8.0':
-    resolution: {integrity: sha512-WG519EU56bDHjIbVgLYHJz/9Rtuq5ywdBug5pEdfzNrpiOkSslKNcAV5Ys6Dp9tA+HP/LQmOcCok5++6CDqQNg==}
+  '@vttforge/types@0.11.0':
+    resolution: {integrity: sha512-eIJ/HQswHQYfEVIQS5rsBT82cSg3k+3Ya2KQYH3TJVVTS48rFm1kuuLeXZXWIVns6O2CiXXVMax9kV55M7ZjQQ==}
+
+  '@vttforge/types@0.9.0':
+    resolution: {integrity: sha512-MiVyaJezmOkWN+4L77CUG+w4iE+EQfQOkAJPxmosjMkd/PuuCcCNQpxOeqHd2d52L/BZiy1ke0RlAdqj/+6ESA==}
 
   '@vttforge/vite-plugin@0.6.0':
     resolution: {integrity: sha512-wMbHqNnunyfIHaERk/K2UglVP453/PDbaswIuJYd+QfS4jHxyQEdZHcvHPolV8uuz3vTUXgJ+RfuiHRBaEoiHw==}
@@ -1455,17 +1458,19 @@ snapshots:
       - bare-buffer
       - react-native-b4a
 
-  '@vttforge/core@0.20.3':
+  '@vttforge/core@0.20.6':
     dependencies:
-      '@vttforge/types': 0.8.0
+      '@vttforge/types': 0.11.0
 
   '@vttforge/styles@0.5.0': {}
 
-  '@vttforge/testing@0.12.0':
+  '@vttforge/testing@0.13.0':
     dependencies:
-      '@vttforge/types': 0.8.0
+      '@vttforge/types': 0.9.0
 
-  '@vttforge/types@0.8.0': {}
+  '@vttforge/types@0.11.0': {}
+
+  '@vttforge/types@0.9.0': {}
 
   '@vttforge/vite-plugin@0.6.0(rolldown@1.2.6)(vite@8.2.2(@types/node@26.4.1))':
     dependencies:

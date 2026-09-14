@@ -7,7 +7,8 @@
  * code coerced it at every read. A data model states the shape once and
  * Foundry enforces it.
  */
-import { BaseTypeDataModel, fields } from '@vttforge/core';
+import { BaseTypeDataModel, fields, type ItemLike } from '@vttforge/core';
+import { PDF_TYPE } from '../constants.js';
 
 /** What kind of PDF this is, which decides how the viewer opens it. */
 export const PDF_TYPES = ['static', 'fillable', 'actor'] as const;
@@ -80,3 +81,18 @@ export class PdfData extends BaseTypeDataModel(definePdfSchema) {
 
 /** The shape of `item.system` for a PDF item. */
 export type PdfSystem = PdfData['$inferData'];
+
+/** An Item of this module's PDF sub-type, with its schema attached. */
+export type PdfItem = ItemLike<PdfSystem>;
+
+/**
+ * Whether an item is one of ours.
+ *
+ * A type guard rather than a comparison, so `[...game.items].filter(isPdfItem)`
+ * hands back `PdfItem[]`. `Collection#filter` takes a plain predicate and
+ * returns the collection's own type, which is why the three call sites that
+ * used it each ended in a cast.
+ */
+export function isPdfItem(item: ItemLike): item is PdfItem {
+  return item.type === PDF_TYPE;
+}
