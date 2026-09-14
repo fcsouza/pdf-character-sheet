@@ -15,20 +15,16 @@
  * is a decision left to whoever reads the journal afterwards and agrees it
  * came out right.
  */
-import { MODULE_ID, PDF_TYPE } from './constants.js';
-
-interface PdfItem {
-  id: string;
-  name: string;
-  system: { url: string; code: string; offset: number };
-}
+import type { JournalEntryLike } from '@vttforge/core';
+import { MODULE_ID } from './constants.js';
+import { isPdfItem } from './data/pdf-data.js';
 
 /** The journal this module writes to, by name. */
 const JOURNAL_NAME = 'PDFs';
 
 export interface ExportResult {
-  /** The JournalEntry the pages were written to. */
-  journal: { id: string; name: string };
+  /** The JournalEntry the pages were written to. `id` is null until it saves. */
+  journal: { id: string | null; name: string };
   /** How many pages were written. */
   written: number;
   /** Items skipped because no file was ever chosen for them. */
@@ -46,7 +42,7 @@ export async function exportToJournal(): Promise<ExportResult> {
     throw new Error('Only a Gamemaster can export the PDF library.');
   }
 
-  const items: PdfItem[] = game.items.filter((item: { type: string }) => item.type === PDF_TYPE);
+  const items = [...game.items].filter(isPdfItem);
 
   const skipped: string[] = [];
   const pages = [];
@@ -68,18 +64,21 @@ export async function exportToJournal(): Promise<ExportResult> {
     });
   }
 
-  const existing = game.journal?.find((entry: { name: string }) => entry.name === JOURNAL_NAME);
+  const existing = game.journal.find((entry) => entry.name === JOURNAL_NAME);
   if (existing) {
     // Replace what a previous run wrote, and leave pages someone added by
     // hand alone.
     const ours = existing.pages
-      .filter((page: { flags?: Record<string, unknown> }) => page.flags?.[MODULE_ID])
-      .map((page: { id: string }) => page.id);
+      .filter((page) => Boolean(page.flags?.[MODULE_ID]))
+      .map((page) => page.id)
+      .filter((id): id is string => id !== null);
     if (ours.length > 0) await existing.deleteEmbeddedDocuments('JournalEntryPage', ours);
     if (pages.length > 0) await existing.createEmbeddedDocuments('JournalEntryPage', pages);
     return { journal: { id: existing.id, name: existing.name }, written: pages.length, skipped };
   }
 
-  const created = await JournalEntry.create({ name: JOURNAL_NAME, pages });
+  // `create` on a document class is declared as returning `unknown`: which
+  // document it makes is the caller's to know. This one makes a journal.
+  const created = (await JournalEntry.create({ name: JOURNAL_NAME, pages })) as JournalEntryLike;
   return { journal: { id: created.id, name: created.name }, written: pages.length, skipped };
 }

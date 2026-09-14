@@ -16,6 +16,7 @@
  */
 import { createMigrationRunner } from '@vttforge/core';
 import { MODULE_ID, PDF_TYPE } from './constants.js';
+import { isPdfItem } from './data/pdf-data.js';
 
 /** The shape the v10 module wrote into its flag. */
 interface LegacyPdfData {
@@ -78,8 +79,8 @@ export async function migrateJournalPdfsToItems(): Promise<number> {
 export async function relinkActorSheets(): Promise<number> {
   const actors = game.actors ?? [];
   const byUrl = new Map<string, string>();
-  for (const item of game.items ?? []) {
-    if (item.type === PDF_TYPE && item.system?.url) byUrl.set(item.system.url, item.id);
+  for (const item of game.items) {
+    if (isPdfItem(item) && item.system.url && item.id) byUrl.set(item.system.url, item.id);
   }
 
   let relinked = 0;

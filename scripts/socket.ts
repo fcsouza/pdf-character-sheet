@@ -76,9 +76,33 @@ function senderMayCommand(senderId: unknown): boolean {
   return game.users?.get(senderId)?.isGM === true;
 }
 
+/**
+ * Is this one of ours?
+ *
+ * What arrives on a socket is whatever the other end sent, so the type is
+ * `unknown` and the shape is checked rather than assumed. A malformed message
+ * is dropped.
+ */
+function isMessage(value: unknown): value is Message {
+  if (typeof value !== 'object' || value === null) return false;
+  // Read as loose fields, not as `Partial<SetView & Preload>`: intersecting
+  // the two literal `type` values gives `never` and the checks below stop
+  // compiling.
+  const candidate = value as Record<string, unknown>;
+  if (candidate.type === 'setView') {
+    return (
+      typeof candidate.url === 'string' &&
+      typeof candidate.title === 'string' &&
+      typeof candidate.page === 'number'
+    );
+  }
+  return candidate.type === 'preload' && typeof candidate.url === 'string';
+}
+
 export function registerSocket(): void {
-  game.socket?.on(CHANNEL, (message: Message, senderId?: string) => {
+  game.socket?.on(CHANNEL, (message, senderId) => {
     if (!senderMayCommand(senderId)) return;
+    if (!isMessage(message)) return;
 
     if (message.type === 'setView') {
       onSetView(message);

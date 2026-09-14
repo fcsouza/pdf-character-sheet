@@ -10,15 +10,9 @@
  * item id would be more precise and nobody types one.
  */
 import { PdfViewer } from './apps/pdf-viewer.js';
-import { PDF_TYPE } from './constants.js';
+import { isPdfItem, type PdfItem } from './data/pdf-data.js';
 import { type ExportResult, exportToJournal } from './export.js';
 import { requestPreload, shareView } from './socket.js';
-
-interface PdfItem {
-  id: string;
-  name: string;
-  system: { url: string; code: string; offset: number };
-}
 
 /**
  * Refuse a call that would reach across to other people's clients.
@@ -52,8 +46,7 @@ function requirePdf(codeOrName: string): PdfItem {
 }
 
 function allPdfs(): PdfItem[] {
-  return (game.items?.filter((item: { type: string }) => item.type === PDF_TYPE) ??
-    []) as PdfItem[];
+  return [...game.items].filter(isPdfItem);
 }
 
 export interface PdfApi {

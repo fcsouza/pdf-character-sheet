@@ -50,7 +50,8 @@ function mount({ isGM = true, existing = null as typeof journal } = {}): void {
   restore = withMockFoundry({
     game: {
       user: { isGM },
-      items: { filter: (fn: (i: (typeof ITEMS)[number]) => boolean) => ITEMS.filter(fn) },
+      // An array, because the code under test walks it.
+      items: ITEMS,
       journal: { find: (fn: (e: unknown) => boolean) => (journal && fn(journal) ? journal : undefined) },
     },
     globals: {

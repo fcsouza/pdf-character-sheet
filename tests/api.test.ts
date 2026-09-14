@@ -46,10 +46,11 @@ function asUser({ isGM }: { isGM: boolean }): void {
   restore = withMockFoundry({
     game: {
       user: { isGM },
-      items: {
-        filter: (fn: (item: (typeof all)[number]) => boolean) => all.filter(fn),
+      // An array plus `get`: the code under test walks the collection, and a
+      // stub with only `filter` is not something you can walk.
+      items: Object.assign(all, {
         get: (id: string) => all.find((item) => item.id === id),
-      },
+      }),
     },
   }).restore;
 }
@@ -65,10 +66,11 @@ beforeEach(() => {
   restore = withMockFoundry({
     game: {
       user: { isGM: true },
-      items: {
-        filter: (fn: (item: (typeof all)[number]) => boolean) => all.filter(fn),
+      // An array plus `get`: the code under test walks the collection, and a
+      // stub with only `filter` is not something you can walk.
+      items: Object.assign(all, {
         get: (id: string) => all.find((item) => item.id === id),
-      },
+      }),
     },
   }).restore;
 });

@@ -33,7 +33,7 @@ import { registerSocket } from './socket.js';
 function registerActorContextMenu(): void {
   Hooks.on(
     'getActorContextOptions',
-    (_directory: unknown, options: Array<Record<string, unknown>>) => {
+    (_directory, options) => {
       // v14 shape: `label` / `visible` / `onClick`. The v13 `name` /
       // `condition` / `callback` keys still work but warn until v16.
       options.push({
@@ -42,7 +42,7 @@ function registerActorContextMenu(): void {
         visible: () => Boolean(game.user?.isGM),
         onClick: (_event: Event, li: HTMLElement) => {
           const actor = game.actors?.get(li.dataset.entryId ?? '');
-          if (actor) void chooseActorSheet(actor as never);
+          if (actor) void chooseActorSheet(actor);
         },
       });
     },

@@ -13,28 +13,14 @@
  * meant to touch. Every function here returns `undefined` for dismissal and
  * something concrete otherwise, and says so at the call site.
  */
-import { MODULE_ID, PDF_TYPE } from '../constants.js';
+import { MODULE_ID } from '../constants.js';
+import type { DocumentMembers } from '@vttforge/core';
+import { isPdfItem, type PdfItem } from '../data/pdf-data.js';
 import { actorPaths } from '../paths.js';
 
 const { DialogV2 } = foundry.applications.api;
 const { createFormGroup, createMultiSelectInput, createSelectInput } =
   foundry.applications.fields;
-
-interface PdfItemLike {
-  id: string;
-  name: string;
-  system: { url: string; code: string; pdfType: string };
-}
-
-interface ActorLike {
-  id: string;
-  name: string;
-  system: unknown;
-  flags?: Record<string, unknown>;
-  getFlag(scope: string, key: string): unknown;
-  setFlag(scope: string, key: string, value: unknown): Promise<unknown>;
-  unsetFlag(scope: string, key: string): Promise<unknown>;
-}
 
 function localize(key: string, data?: Record<string, unknown>): string {
   return data ? game.i18n.format(key, data) : game.i18n.localize(key);
@@ -49,10 +35,8 @@ function localize(key: string, data?: Record<string, unknown>): string {
  * The kind is a hint about how a file is meant to be used, not a rule about
  * what an actor may point at; the sheet renders whatever it is given.
  */
-function sheetPdfs(): PdfItemLike[] {
-  const items = (game.items?.filter((item: { type: string }) => item.type === PDF_TYPE) ??
-    []) as PdfItemLike[];
-  return [...items].sort((a, b) => a.name.localeCompare(b.name));
+function sheetPdfs(): PdfItem[] {
+  return [...game.items].filter(isPdfItem).sort((a, b) => a.name.localeCompare(b.name));
 }
 
 /**
@@ -64,7 +48,7 @@ function sheetPdfs(): PdfItemLike[] {
  * dismissal as `null` would silently unset a sheet someone spent an evening
  * filling in.
  */
-export async function pickActorSheet(actor: ActorLike): Promise<string | null | undefined> {
+export async function pickActorSheet(actor: DocumentMembers): Promise<string | null | undefined> {
   const options = sheetPdfs();
   if (options.length === 0) {
     ui.notifications?.warn(localize('PDF_CHARACTER_SHEET.Pick.noSheets'));
@@ -102,7 +86,12 @@ export async function pickActorSheet(actor: ActorLike): Promise<string | null | 
 }
 
 /** Apply what `pickActorSheet` returned, and report what happened. */
-export async function chooseActorSheet(actor: ActorLike): Promise<void> {
+/**
+ * `DocumentMembers`, not `ActorLike`: this reads a name and moves a flag, and
+ * every document has both. Asking for the actor surface would refuse the
+ * document a sheet hands over.
+ */
+export async function chooseActorSheet(actor: DocumentMembers): Promise<void> {
   const choice = await pickActorSheet(actor);
   if (choice === undefined) return;
 
@@ -113,7 +102,7 @@ export async function chooseActorSheet(actor: ActorLike): Promise<void> {
   }
 
   await actor.setFlag(MODULE_ID, 'sheetItemId', choice);
-  const item = game.items?.get(choice) as PdfItemLike | undefined;
+  const item = game.items.get(choice);
   ui.notifications?.info(
     localize('PDF_CHARACTER_SHEET.Pick.chosen', { name: item?.name ?? choice }),
   );
@@ -178,7 +167,7 @@ export async function pickPlayers(): Promise<string[] | undefined> {
  * Read-only, and a dialog rather than a window: it is something you consult
  * while naming fields in a PDF editor, not something you keep open.
  */
-export async function browseActorPaths(actor: ActorLike): Promise<void> {
+export async function browseActorPaths(actor: DocumentMembers): Promise<void> {
   const rows = Object.entries(actorPaths(actor))
     // Flags are the module's own storage, not something a sheet author names
     // a field after, so they stay out of the reference.
