@@ -2,12 +2,12 @@
  * The PDF item sheet — where the file, code and page offset are set, and
  * where the PDF is opened from.
  */
-import { BaseItemSheet } from '@vttforge/core';
+import { BaseItemSheet, type ItemLike } from '@vttforge/core';
 import { MODULE_ID } from '../constants.js';
-import { PDF_TYPES } from '../data/pdf-data.js';
+import { PDF_TYPES, type PdfSystem } from '../data/pdf-data.js';
 import { PdfViewer } from './pdf-viewer.js';
 
-export class PdfSheet extends BaseItemSheet() {
+export class PdfSheet extends BaseItemSheet<ItemLike<PdfSystem>>() {
   static DEFAULT_OPTIONS = foundry.utils.mergeObject(
     super.DEFAULT_OPTIONS,
     {
@@ -30,12 +30,11 @@ export class PdfSheet extends BaseItemSheet() {
   /**
    * The PDF item this sheet is for.
    *
-   * `this.document` is `unknown` on the base — which document a sheet is for
-   * is the module's to know, not the SDK's. Saying it once here means every
-   * use below reads `item.system.url` with a real type instead of a cast.
+   * The base takes the document type as a parameter, so `this.document`
+   * already carries the schema and this is a name, not a cast.
    */
-  get item(): { name: string; system: { url: string; code: string; pdfType: string } } {
-    return this.document as { name: string; system: { url: string; code: string; pdfType: string } };
+  get item(): ItemLike<PdfSystem> {
+    return this.document;
   }
 
   async _prepareContext(options: Record<string, unknown>): Promise<Record<string, unknown>> {
