@@ -23,7 +23,7 @@
   "devDependencies": {
     "@playwright/test": "^1.63.0",
     "@vttforge/cli": "^0.18.4",
-    "@vttforge/testing": "^0.14.0",
+    "@vttforge/testing": "^0.14.1",
     "@vttforge/vite-plugin": "^0.6.0",
     "happy-dom": "^20.0.0",
     "typescript": "^5.4.0",
