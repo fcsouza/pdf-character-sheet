@@ -3,8 +3,8 @@
 Playwright against a real Foundry v14 in Docker, with this module installed.
 
 ```bash
-pnpm build          # the harness copies dist/ into the container
-pnpm test:e2e
+bun run build          # the harness copies dist/ into the container
+bun run test:e2e
 ```
 
 Three environment variables are needed, because the container downloads a

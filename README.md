@@ -127,12 +127,12 @@ the bundler owns the worker.
 ### Building from source
 
 ```bash
-pnpm install
-pnpm build     # dist/ plus a release zip
-pnpm dev       # builds, links dist/ into your Foundry data dir, and watches
+bun install
+bun run build     # dist/ plus a release zip
+bun run dev       # builds, links dist/ into your Foundry data dir, and watches
 ```
 
-`pnpm dev` asks where Foundry keeps its data on the first run and remembers the
+`bun run dev` asks where Foundry keeps its data on the first run and remembers the
 answer. If Foundry runs in a container it cannot follow that symlink, and the
 command prints the compose mount to use instead.
 
@@ -141,9 +141,9 @@ Built with the [VTTForge](https://vttforge.dev) SDK.
 ### Tests
 
 ```bash
-pnpm test        # Vitest, against the Foundry mock from @vttforge/testing
-pnpm typecheck   # covers the tests too
-pnpm test:e2e    # Playwright against a real Foundry v14 in Docker
+bun run test        # Vitest, against the Foundry mock from @vttforge/testing
+bun run typecheck   # covers the tests too
+bun run test:e2e    # Playwright against a real Foundry v14 in Docker
 ```
 
 CI runs the unit tests, the typecheck, the build and `vttforge audit` on every

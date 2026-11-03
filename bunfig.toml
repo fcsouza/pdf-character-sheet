@@ -1,0 +1,12 @@
+[install]
+# Same rule the old package-manager config had: no version installs until it
+# has been published for 24h. Our own @vttforge packages are exempt.
+minimumReleaseAge = 86400
+minimumReleaseAgeExcludes = [
+  "@vttforge/cli",
+  "@vttforge/core",
+  "@vttforge/styles",
+  "@vttforge/testing",
+  "@vttforge/types",
+  "@vttforge/vite-plugin",
+]
