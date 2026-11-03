@@ -38,7 +38,7 @@ jobs:
         with:
           node-version: 26
 
-      - run: bun install
+      - run: bun install --frozen-lockfile
 
       - name: Sync manifest version
         env:
