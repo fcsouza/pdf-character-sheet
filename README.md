@@ -128,8 +128,8 @@ the bundler owns the worker.
 
 ```bash
 bun install
-bun run build     # dist/ plus a release zip
-bun run dev       # builds, links dist/ into your Foundry data dir, and watches
+bun run build  # dist/ plus a release zip
+bun run dev    # builds, links dist/ into your Foundry data dir, and watches
 ```
 
 `bun run dev` asks where Foundry keeps its data on the first run and remembers the

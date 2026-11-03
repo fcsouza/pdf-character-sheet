@@ -3,7 +3,7 @@
 Playwright against a real Foundry v14 in Docker, with this module installed.
 
 ```bash
-bun run build          # the harness copies dist/ into the container
+bun run build  # the harness copies dist/ into the container
 bun run test:e2e
 ```
 
