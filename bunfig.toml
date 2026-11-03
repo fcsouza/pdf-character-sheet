@@ -1,0 +1,4 @@
+[install]
+# No version installs until it has been published for 24h, our own
+# @vttforge packages included.
+minimumReleaseAge = 86400
